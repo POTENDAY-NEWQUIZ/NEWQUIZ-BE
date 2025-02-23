@@ -13,6 +13,7 @@ public class UserResponse {
         private Long userId;
         private String nickname;
         private String accessToken;
+        private String refreshToken;
     }
 
     @Data
