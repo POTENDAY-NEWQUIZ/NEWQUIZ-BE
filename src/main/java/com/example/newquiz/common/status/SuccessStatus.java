@@ -10,7 +10,13 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus implements BaseSuccessStatus {
     OK(HttpStatus.OK, 200, "성공적으로 요청되었습니다."),
     CREATED(HttpStatus.CREATED, 201, "성공적으로 생성되었습니다."),
-    NO_CONTENT(HttpStatus.NO_CONTENT, 204, "성공적으로 삭제되었습니다.");
+    NO_CONTENT(HttpStatus.NO_CONTENT, 204, "성공적으로 삭제되었습니다."),
+
+    // 회원 관련 성공
+    USER_REGISTER_SUCCESS(HttpStatus.CREATED, 201, "회원가입에 성공하였습니다."),
+
+    // 토큰 관련 성공
+    TOKEN_REISSUE_SUCCESS(HttpStatus.OK, 200, "토큰 재발급에 성공하였습니다."),;
 
     private final HttpStatus httpStatus;
     private final Integer code;
