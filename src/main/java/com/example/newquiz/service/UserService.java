@@ -44,7 +44,7 @@ public class UserService {
         RefreshToken newRefreshToken = RefreshToken.toEntity(refreshToken, user.getUserId());
         refreshTokenRepository.save(newRefreshToken);
 
-        return UserConverter.toUserDto(user.getUserId(), user.getNickName(), accessToken);
+        return UserConverter.toUserDto(user.getUserId(), user.getNickName(), accessToken, refreshToken);
     }
 
     private String checkRegisterToken(String registerToken) {
