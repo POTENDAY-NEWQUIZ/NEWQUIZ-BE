@@ -21,9 +21,18 @@ public class Paragraph extends BaseEntity {
     private Long newsId;
 
     @Column(name = "content_order", nullable = false)
-    private Integer content_order;
+    private Integer contentOrder;
 
     @Lob
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    @Builder
+    public static Paragraph toEntity(Long newsId, Integer content_order, String content) {
+        return Paragraph.builder()
+                .newsId(newsId)
+                .contentOrder(content_order)
+                .content(content)
+                .build();
+    }
 }
