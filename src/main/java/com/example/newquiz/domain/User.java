@@ -30,6 +30,15 @@ public class User extends BaseEntity {
     @Column(name = "birth", nullable = false)
     private LocalDate birth;
 
+    @Column(name = "max_learning_days")
+    private Integer maxLearningDays;
+
+    @Column(name = "max_avg_score")
+    private Double maxAvgScore;
+
+    @Column(name = "avg_score")
+    private Double avgScore;
+
     @Builder
     public static User toEntity(String providerId, String nickName, LocalDate birth) {
         return User.builder()
