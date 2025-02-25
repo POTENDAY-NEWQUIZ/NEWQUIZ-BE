@@ -21,7 +21,7 @@ public class MeaningQuiz extends BaseEntity {
     private Long quizId;
 
     @Column(name = "answer", nullable = false)
-    private String answer;
+    private Integer answer;
 
     @Column(name = "option1", nullable = false)
     private String option1;

@@ -20,9 +20,19 @@ public class Paragraph extends BaseEntity {
     @Column(name = "news_id", nullable = false)
     private Long newsId;
 
-    @Column(name = "order", nullable = false)
-    private Integer order;
+    @Column(name = "content_order", nullable = false)
+    private Integer contentOrder;
 
-    @Column(name = "content", nullable = false)
+    @Lob
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    @Builder
+    public static Paragraph toEntity(Long newsId, Integer content_order, String content) {
+        return Paragraph.builder()
+                .newsId(newsId)
+                .contentOrder(content_order)
+                .content(content)
+                .build();
+    }
 }
