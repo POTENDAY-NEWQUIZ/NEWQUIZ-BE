@@ -92,6 +92,7 @@ public class QuizCreateService {
                         SynonymQuiz.builder()
                                 .quizId(quiz.getQuizId())
                                 .answer(getAnswerIndex(question.getOptions(), question.getAnswer()))
+                                .word(question.getSelectedWord())
                                 .option1(question.getOptions().get(0))
                                 .option2(question.getOptions().get(1))
                                 .option3(question.getOptions().get(2))
