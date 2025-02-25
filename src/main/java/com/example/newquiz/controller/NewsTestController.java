@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
-public class NewsCrawlerController {
+public class NewsTestController {
 
     private final NewsCrawlerService newsCrawlerService;
 
