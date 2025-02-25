@@ -26,6 +26,20 @@ jobs:
         echo "${{ secrets.APPLICATION_SECRET }}" > ./src/main/resources/application-secret.yml
       shell: bash
 
+    - name: Generate news-categorize-prompt.txt
+      run: |
+        cat <<EOF > ./src/main/resources/news-categorize-prompt.txt
+        ${{ secrets.NEWS_CATEGORIZE_PROMPT }}
+        EOF
+      shell: bash
+
+    - name: Generate quiz-generation-prompt.txt
+      run: |
+        cat <<EOF > ./src/main/resources/quiz-generate-prompt.txt
+        ${{ secrets.QUIZ_GENERATE_PROMPT }}
+        EOF
+      shell: bash
+
     - name: 빌드
       run: |
           chmod +x gradlew
