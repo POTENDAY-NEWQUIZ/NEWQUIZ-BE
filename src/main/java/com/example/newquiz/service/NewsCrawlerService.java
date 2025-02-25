@@ -39,7 +39,7 @@ public class NewsCrawlerService {
             "한국경제", "한국일보", "헤럴드경제"
     );
 
-    @Scheduled(cron = "0 10 6 * * ?") // 매일 23시에 실행 -> 6시 10분로 테스트 중
+    @Scheduled(cron = "0 25 6 * * ?") // 매일 23시에 실행 -> 6시 25분로 테스트 중
     public void crawlNews() {
         try {
             log.info("📰 뉴스 크롤링 시작...");
@@ -60,7 +60,10 @@ public class NewsCrawlerService {
     @Transactional
     protected void crawlArticle(String url) {
         try {
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup
+                    .connect(url)
+                    .timeout(50000) // 50초
+                    .get();
             String title = doc.select("h2.media_end_head_headline").text();
             String source = doc.select("a.media_end_head_top_logo img").attr("alt");
             String dateText = doc.select("span.media_end_head_info_datestamp_time").attr("data-date-time");
