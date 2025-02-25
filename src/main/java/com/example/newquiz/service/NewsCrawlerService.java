@@ -40,7 +40,7 @@ public class NewsCrawlerService {
             "한국경제", "한국일보", "헤럴드경제"
     );
 
-    @Scheduled(cron = "0 0 23 * * ?") // 매일 23시에 실행
+    @Scheduled(cron = "0 0 6 * * ?") // 매일 23시에 실행 -> 6시로 테스트 중
     public void crawlNews() {
         try {
             log.info("📰 뉴스 크롤링 시작...");
