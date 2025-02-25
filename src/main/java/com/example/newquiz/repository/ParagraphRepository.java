@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ParagraphRepository extends JpaRepository<Paragraph, Long> {
     List<Paragraph> findByNewsIdOrderByContentOrderAsc(Long newsId);
+    void deleteByNewsId(Long newsId);
 }

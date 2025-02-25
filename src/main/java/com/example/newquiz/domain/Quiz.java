@@ -28,12 +28,15 @@ public class Quiz extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private QuizType type;
 
+    @Setter
     @Column(name = "sysnonym_quiz_id")
     private Long synonymQuizId;
 
+    @Setter
     @Column(name = "meaning_quiz_id")
     private Long meaningQuizId;
 
+    @Setter
     @Column(name = "content_quiz_id")
     private Long contentQuizId;
 }
