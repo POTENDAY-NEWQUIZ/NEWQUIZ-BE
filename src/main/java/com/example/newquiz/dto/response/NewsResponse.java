@@ -27,4 +27,25 @@ public class NewsResponse {
         private LocalDate date;
         private String source;
     }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class NewsDetailDto {
+        private Long newsId;
+        private String title;
+        private LocalDate date;
+        private String source;
+        private String category;
+        private List<ParagraphDto> paragraphs;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class ParagraphDto {
+        private Long paragraphId;
+        private int order;
+        private String content;
+    }
 }

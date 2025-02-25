@@ -8,10 +8,7 @@ import com.example.newquiz.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,5 +25,14 @@ public class NewsController {
         NewsResponse.NewsListDto response = newsService.getNewsList(userDetails.getUserId(), category);
         return ApiResponse.success(SuccessStatus.NEWS_LIST_SUCCESS, response);
     }
+
+    @GetMapping("/{newsId}")
+    public ResponseEntity<ApiResponse<NewsResponse.NewsDetailDto>> getNewsDetail(
+            @PathVariable Long newsId
+    ) {
+        NewsResponse.NewsDetailDto response = newsService.getNewsDetail(newsId);
+        return ApiResponse.success(SuccessStatus.NEWS_DETAIL_SUCCESS, response);
+    }
+
 
 }
