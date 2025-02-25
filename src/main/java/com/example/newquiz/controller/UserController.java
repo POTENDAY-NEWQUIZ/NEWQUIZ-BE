@@ -25,7 +25,7 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 
-    @GetMapping("/nickname/check")
+    @PostMapping("/nickname/check")
     public ResponseEntity<ApiResponse<UserResponse.NickNameCheckDto>> checkNickname(
             @RequestBody UserRequest.NickNameCheckDto nickNameCheckDto
     ) {
