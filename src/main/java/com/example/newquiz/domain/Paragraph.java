@@ -20,8 +20,8 @@ public class Paragraph extends BaseEntity {
     @Column(name = "news_id", nullable = false)
     private Long newsId;
 
-    @Column(name = "order", nullable = false)
-    private Integer order;
+    @Column(name = "content_order", nullable = false)
+    private Integer content_order;
 
     @Column(name = "content", nullable = false)
     private String content;
