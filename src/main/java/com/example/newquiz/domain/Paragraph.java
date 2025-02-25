@@ -23,6 +23,7 @@ public class Paragraph extends BaseEntity {
     @Column(name = "content_order", nullable = false)
     private Integer content_order;
 
-    @Column(name = "content", nullable = false)
+    @Lob
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 }
