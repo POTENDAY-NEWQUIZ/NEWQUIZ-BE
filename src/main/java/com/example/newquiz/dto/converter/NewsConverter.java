@@ -1,6 +1,8 @@
 package com.example.newquiz.dto.converter;
 
 import com.example.newquiz.domain.News;
+import com.example.newquiz.domain.Paragraph;
+import com.example.newquiz.domain.enums.NewsCategory;
 import com.example.newquiz.dto.response.NewsResponse;
 
 import java.util.List;
@@ -17,6 +19,23 @@ public class NewsConverter {
                                 .title(news.getTitle())
                                 .date(news.getDate())
                                 .source(news.getSource())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static NewsResponse.NewsDetailDto toNewsDetailDto(News news, List<Paragraph> paragraphs) {
+        return NewsResponse.NewsDetailDto.builder()
+                .newsId(news.getNewsId())
+                .title(news.getTitle())
+                .date(news.getDate())
+                .source(news.getSource())
+                .category(news.getCategory().getValue())
+                .paragraphs(paragraphs.stream()
+                        .map(paragraph -> NewsResponse.ParagraphDto.builder()
+                                .paragraphId(paragraph.getParagraphId())
+                                .order(paragraph.getContentOrder())
+                                .content(paragraph.getContent())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
