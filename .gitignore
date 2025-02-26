@@ -40,3 +40,4 @@ out/
 src/main/resources/application-secret.yml
 src/main/resources/news-categorize-prompt.txt
 src/main/resources/quiz-generate-prompt.txt
+src/main/resources/summary-feedback-prompt.txt
