@@ -1,5 +1,7 @@
 package com.example.newquiz.service;
 
+import com.example.newquiz.common.exception.GeneralException;
+import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.common.util.ClovaUtil;
 import com.example.newquiz.domain.*;
 import com.example.newquiz.domain.enums.QuizType;
@@ -55,7 +57,7 @@ public class QuizCreateService {
             return objectMapper.readValue(clovaUtil.parseContentFromResponse(responseJson), QuizCreateResponse.class);
         } catch (Exception e) {
             log.error("퀴즈 생성 응답 파싱 실패: {}", e.getMessage());
-            return null;
+            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
         }
     }
 
