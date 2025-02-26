@@ -3,8 +3,11 @@ package com.example.newquiz.controller;
 import com.example.newquiz.auth.dto.CustomUserDetails;
 import com.example.newquiz.common.response.ApiResponse;
 import com.example.newquiz.common.status.SuccessStatus;
+import com.example.newquiz.dto.request.SummaryRequest;
 import com.example.newquiz.dto.response.NewsResponse;
+import com.example.newquiz.dto.response.SummaryResponse;
 import com.example.newquiz.service.NewsService;
+import com.example.newquiz.service.SummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class NewsController {
 
     private final NewsService newsService;
+    private final SummaryService summaryService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<NewsResponse.NewsListDto>> getNewsList(
@@ -32,6 +36,15 @@ public class NewsController {
     ) {
         NewsResponse.NewsDetailDto response = newsService.getNewsDetail(newsId);
         return ApiResponse.success(SuccessStatus.NEWS_DETAIL_SUCCESS, response);
+    }
+
+    @PostMapping("/summary")
+    public ResponseEntity<ApiResponse<SummaryResponse.SummaryDto>> saveSummary(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody SummaryRequest.SummaryDto summaryDto
+    ) {
+        SummaryResponse.SummaryDto response = summaryService.saveSummary(userDetails.getUserId(), summaryDto);
+        return ApiResponse.success(SuccessStatus.SAVE_SUMMARY_SUCCESS, response);
     }
 
 
