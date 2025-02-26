@@ -20,6 +20,15 @@ public class Ranking extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Setter
     @Column(name = "score", nullable = false)
     private Integer score;
+
+    @Builder
+    public static Ranking toEntity(Long userId) {
+        return Ranking.builder()
+                .userId(userId)
+                .score(0)
+                .build();
+    }
 }

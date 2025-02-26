@@ -3,11 +3,13 @@ package com.example.newquiz.service;
 import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.common.util.JwtUtil;
+import com.example.newquiz.domain.Ranking;
 import com.example.newquiz.domain.RefreshToken;
 import com.example.newquiz.domain.User;
 import com.example.newquiz.dto.converter.UserConverter;
 import com.example.newquiz.dto.request.UserRequest;
 import com.example.newquiz.dto.response.UserResponse;
+import com.example.newquiz.repository.RankingRepository;
 import com.example.newquiz.repository.RefreshTokenRepository;
 import com.example.newquiz.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RankingRepository rankingRepository;
 
     // 회원가입
     @Transactional
@@ -43,6 +46,10 @@ public class UserService {
         // RefreshToken 생성 후 저장
         RefreshToken newRefreshToken = RefreshToken.toEntity(refreshToken, user.getUserId());
         refreshTokenRepository.save(newRefreshToken);
+
+        // 랭킹 생성
+        Ranking ranking = Ranking.toEntity(user.getUserId());
+        rankingRepository.save(ranking);
 
         return UserConverter.toUserDto(user.getUserId(), user.getNickName(), accessToken, refreshToken);
     }

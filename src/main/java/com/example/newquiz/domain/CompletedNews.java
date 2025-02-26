@@ -23,8 +23,13 @@ public class CompletedNews extends BaseEntity {
     @Column(name = "news_id", nullable = false)
     private Long newsId;
 
+    @Setter
     @Column(name = "is_completed", nullable = false)
     private Boolean isCompleted;
+
+    @Setter
+    @Column(name = "summary_score")
+    private Integer summaryScore;
 
     @Builder
     public static CompletedNews toEntity(Long userId, Long newsId, Boolean isCompleted) {

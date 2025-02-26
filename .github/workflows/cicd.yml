@@ -40,6 +40,13 @@ jobs:
         EOF
       shell: bash
 
+    - name: Generate summary-feedback-prompt.txt
+      run: |
+        cat <<EOF > ./src/main/resources/summary-feedback-prompt.txt
+        ${{ secrets.SUMMARY_FEEDBACK_PROMPT }}
+        EOF
+      shell: bash
+
     - name: 빌드
       run: |
           chmod +x gradlew

@@ -109,10 +109,8 @@ public class QuizService {
         quizResultRepository.saveAll(quizResults);
 
         // CompletedNews 저장
-        List<CompletedNews> completedNewsList = quizResults.stream()
-                .map(quizResult -> CompletedNews.toEntity(userId, newsId, false))
-                .toList();
-        completedNewsRepository.saveAll(completedNewsList);
+        CompletedNews completedNews = CompletedNews.toEntity(userId, newsId, false);
+        completedNewsRepository.save(completedNews);
     }
 
     private void checkAlreadyCompleted(Long userId, Long newsId) {
