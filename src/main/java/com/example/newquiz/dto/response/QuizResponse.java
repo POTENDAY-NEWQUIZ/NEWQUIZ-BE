@@ -12,7 +12,9 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class QuizListDto{
-        private int quizCount;
+        private int synonymQuizCount;
+        private int meaningQuizCount;
+        private int contentQuizCount;
         private List<SynonymQuizDto> synonymQuiz;
         private List<MeaningQuizDto> meaningQuiz;
         private List<ContentQuizDto> contentQuiz;
@@ -22,7 +24,7 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class SynonymQuizDto {
-        private String category;
+        private String type;
         private Long quizId;
         private Long paragraphId;
         private String sourceSentence;
@@ -39,7 +41,7 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class MeaningQuizDto {
-        private String category;
+        private String type;
         private Long quizId;
         private Long paragraphId;
         private String sourceSentence;
@@ -56,11 +58,11 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class ContentQuizDto {
-        private String category;
+        private String type;
         private Long quizId;
         private Long paragraphId;
         private String question;
-        private String answer;
+        private Boolean answer;
         private String explanation;
 
     }
