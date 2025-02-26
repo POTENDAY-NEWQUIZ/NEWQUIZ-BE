@@ -12,11 +12,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class QuizConverter {
-    public static QuizResponse.QuizListDto toQuizListDto(int synonymQuizCount, int meaningQuizCount, int contentQuizCount, List<QuizResponse.SynonymQuizDto> synonymQuizDtoList, List<QuizResponse.MeaningQuizDto> meaningQuizDtoList, List<QuizResponse.ContentQuizDto> contentQuizDtoList) {
+    public static QuizResponse.QuizListDto toQuizListDto(List<Long> quizIds, int synonymQuizCount, int meaningQuizCount, int contentQuizCount, List<QuizResponse.SynonymQuizDto> synonymQuizDtoList, List<QuizResponse.MeaningQuizDto> meaningQuizDtoList, List<QuizResponse.ContentQuizDto> contentQuizDtoList) {
         return QuizResponse.QuizListDto.builder()
+                .totalQuizCount(synonymQuizCount + meaningQuizCount + contentQuizCount)
                 .synonymQuizCount(synonymQuizCount)
                 .meaningQuizCount(meaningQuizCount)
                 .contentQuizCount(contentQuizCount)
+                .quizIdList(quizIds)
                 .synonymQuiz(synonymQuizDtoList)
                 .meaningQuiz(meaningQuizDtoList)
                 .contentQuiz(contentQuizDtoList)
