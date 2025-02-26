@@ -34,10 +34,13 @@ public class NewsCrawlerService {
 
     private static final String BASE_URL = "https://news.naver.com/opinion/editorial";
     private static final List<String> ALLOWED_SOURCES = Arrays.asList(
-            "강원일보", "경기일보", "국민일보", "국제신문", "농민신문", "매일경제",
-            "서울경제", "서울신문", "세계일보", "이데일리", "중앙일보", "파이낸셜뉴스",
-            "한국경제", "한국일보", "헤럴드경제"
+            "강원일보", "경기일보", "경향신문", "국민일보", "국제신문", "농민신문",
+            "대전일보", "동아일보", "디지털타임스", "매일경제", "매일신문", "문화일보",
+            "부산일보", "서울경제", "서울신문", "세계일보", "이데일리", "조선일보",
+            "중앙일보", "파이낸셜뉴스", "한겨레", "한국경제", "한국일보", "헤럴드경제",
+            "강원도민일보"
     );
+
 
     @Scheduled(cron = "0 15 20 * * ?") // 테스트 중
     public void crawlNews() {
