@@ -1,6 +1,7 @@
 package com.example.newquiz.domain;
 
 import com.example.newquiz.common.base.dao.BaseEntity;
+import com.example.newquiz.dto.request.QuizRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,4 +29,14 @@ public class QuizResult extends BaseEntity {
 
     @Column(name = "is_correct", nullable = false)
     private Boolean isCorrect;
+
+    @Builder
+    public static QuizResult toEntity(Long userId, QuizRequest.ResultDto resultDto) {
+        return QuizResult.builder()
+                .userId(userId)
+                .quizId(resultDto.getQuizId())
+                .userAnswer(resultDto.getUserAnswer())
+                .isCorrect(resultDto.getIsCorrect())
+                .build();
+    }
 }

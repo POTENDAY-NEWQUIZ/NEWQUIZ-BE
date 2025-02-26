@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CompletedNewsRepository extends JpaRepository<CompletedNews, Long> {
     List<CompletedNews> findByUserId(Long userId);
+    boolean existsByUserIdAndNewsId(Long userId, Long newsId);
 }
