@@ -39,7 +39,7 @@ public class NewsCrawlerService {
             "한국경제", "한국일보", "헤럴드경제"
     );
 
-    @Scheduled(cron = "0 25 6 * * ?") // 매일 23시에 실행 -> 6시 25분로 테스트 중
+    @Scheduled(cron = "0 10 19 * * ?") // 매일 23시에 실행 -> 19시로 테스트 중
     public void crawlNews() {
         try {
             log.info("📰 뉴스 크롤링 시작...");
@@ -50,10 +50,33 @@ public class NewsCrawlerService {
             for (Element link : newsLinks) {
                 log.info("크롤링 시도 횟수 : {}", i++);
                 String articleUrl = link.attr("href");
-                crawlArticle(articleUrl);
+                crawlArticleWithRetry(articleUrl);
             }
         } catch (Exception e) {
             log.error("❌ 뉴스 크롤링 실패 원인 : {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 최대 2번까지 크롤링 재시도하는 메서드
+     */
+    private void crawlArticleWithRetry(String url) {
+        int maxRetries = 2;
+        int attempt = 0;
+
+        while (attempt < maxRetries) {
+            try {
+                log.info("📰 기사 크롤링 시도 (시도 횟수: {}/{}) - {}", attempt + 1, maxRetries, url);
+                crawlArticle(url);
+                return; // 성공하면 바로 종료
+            } catch (Exception e) {
+                log.warn("⚠️ 기사 크롤링 실패 ({}회차) - {}, 원인: {}", attempt + 1, url, e.getMessage());
+                attempt++;
+
+                if (attempt >= maxRetries) {
+                    log.error("❌ 최대 재시도 횟수 초과, 크롤링 포기: {}", url);
+                }
+            }
         }
     }
 

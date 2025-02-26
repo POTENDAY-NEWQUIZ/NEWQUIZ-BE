@@ -43,4 +43,7 @@ public class SynonymQuiz extends BaseEntity {
 
     @Column(name = "example")
     private String example;
+
+    @Column(name = "word", nullable = false)
+    private String word;
 }
