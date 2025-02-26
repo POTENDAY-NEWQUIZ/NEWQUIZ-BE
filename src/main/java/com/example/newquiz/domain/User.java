@@ -30,12 +30,15 @@ public class User extends BaseEntity {
     @Column(name = "birth", nullable = false)
     private LocalDate birth;
 
+    @Setter
     @Column(name = "max_learning_days")
     private Integer maxLearningDays;
 
+    @Setter
     @Column(name = "max_avg_score")
     private Double maxAvgScore;
 
+    @Setter
     @Column(name = "avg_score")
     private Double avgScore;
 
