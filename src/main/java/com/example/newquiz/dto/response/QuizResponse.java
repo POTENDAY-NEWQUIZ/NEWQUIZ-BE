@@ -12,9 +12,11 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class QuizListDto{
+        private int totalQuizCount;
         private int synonymQuizCount;
         private int meaningQuizCount;
         private int contentQuizCount;
+        private List<Long> quizIdList;
         private List<SynonymQuizDto> synonymQuiz;
         private List<MeaningQuizDto> meaningQuiz;
         private List<ContentQuizDto> contentQuiz;

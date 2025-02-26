@@ -39,13 +39,18 @@ public class QuizService {
         List<Quiz> meaningList = quizRepository.findByNewsIdAndType(newsId, QuizType.MEANING);
         List<Quiz> contentList = quizRepository.findByNewsIdAndType(newsId, QuizType.CONTENT);
 
+        // 각 퀴즈ID에 대한 List 만들기
+        List<Long> quizIds = sysnonymList.stream().map(Quiz::getQuizId).collect(Collectors.toList());
+        quizIds.addAll(meaningList.stream().map(Quiz::getQuizId).collect(Collectors.toList()));
+        quizIds.addAll(contentList.stream().map(Quiz::getQuizId).collect(Collectors.toList()));
+
         // 카테고리별로 DTO 생성
         List<QuizResponse.SynonymQuizDto> synonymQuizDto = createSynonymQuizDto(sysnonymList);
         List<QuizResponse.MeaningQuizDto> meaningQuizDto = createMeaningQuizDto(meaningList);
         List<QuizResponse.ContentQuizDto> contentQuizDto = createContentQuizDto(contentList);
 
         // QuizListDto에 추가
-        return QuizConverter.toQuizListDto(sysnonymList.size(), meaningList.size(), contentList.size(), synonymQuizDto, meaningQuizDto, contentQuizDto);
+        return QuizConverter.toQuizListDto(quizIds, sysnonymList.size(), meaningList.size(), contentList.size(), synonymQuizDto, meaningQuizDto, contentQuizDto);
 
         // 리턴
     }
