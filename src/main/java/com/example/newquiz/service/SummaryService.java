@@ -93,7 +93,7 @@ public class SummaryService {
      * 연속 학습 일수를 계산.
      */
     private int calculateConsecutiveLearningDays(Long userId) {
-        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(userId);
         int consecutiveDays = 0;
         LocalDate previousDate = LocalDate.now();
 
@@ -122,7 +122,7 @@ public class SummaryService {
      * 사용자의 평균 점수를 계산하고 업데이트.
      */
     private void updateUserAverageScore(User user) {
-        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId());
+        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(user.getUserId());
 
         if (!completedNewsList.isEmpty()) {
             double avgScore = Math.round(

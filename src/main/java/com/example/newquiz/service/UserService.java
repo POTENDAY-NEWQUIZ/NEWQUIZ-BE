@@ -9,12 +9,14 @@ import com.example.newquiz.domain.User;
 import com.example.newquiz.dto.converter.UserConverter;
 import com.example.newquiz.dto.request.UserRequest;
 import com.example.newquiz.dto.response.UserResponse;
-import com.example.newquiz.repository.RankingRepository;
-import com.example.newquiz.repository.RefreshTokenRepository;
-import com.example.newquiz.repository.UserRepository;
+import com.example.newquiz.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RankingRepository rankingRepository;
+    private final HomeService homeService;
+    private final CompletedNewsRepository completedNewsRepository;
+    private final QuizResultRepository quizResultRepository;
+
 
     // 회원가입
     @Transactional
@@ -69,5 +75,42 @@ public class UserService {
     public UserResponse.NickNameCheckDto checkNickname(String nickname) {
         Boolean isDuplicate = userRepository.existsByNickName(nickname);
         return UserConverter.toNickNameCheckDto(isDuplicate);
+    }
+
+    // 마이페이지 정보 조회
+    public UserResponse.MyPageDto getMyPageInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+
+        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
+        int learningDays = calendar == null ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+
+        return UserConverter.toMyPageDto(user, learningDays);
+    }
+
+    // 닉네임 변경
+    @Transactional
+    public void changeNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+        user.setNickName(nickname);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(String refreshToken) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(refreshToken);
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+    }
+
+    // 회원 탈퇴
+    @Transactional
+    public void deleteUser(Long userId, String refreshToken) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(refreshToken);
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+        // 연관된 데이터 삭제
+        userRepository.deleteById(userId);
+        completedNewsRepository.deleteByUserId(userId);
+        quizResultRepository.deleteByUserId(userId);
+        rankingRepository.deleteByUserId(userId);
     }
 }
