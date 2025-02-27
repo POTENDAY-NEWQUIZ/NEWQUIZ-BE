@@ -37,4 +37,15 @@ public class UserResponse {
         private Integer maxLearningDays;
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class MyPageDto {
+        private String nickname;
+        private Integer maxLearningDays;
+        private Integer learningDays;
+        private double avgScore;
+        private double maxAvgScore;
+    }
+
 }

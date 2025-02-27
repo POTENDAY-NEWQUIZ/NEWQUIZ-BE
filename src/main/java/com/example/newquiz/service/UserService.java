@@ -16,6 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -23,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RankingRepository rankingRepository;
+    private final HomeService homeService;
 
     // 회원가입
     @Transactional
@@ -69,5 +73,16 @@ public class UserService {
     public UserResponse.NickNameCheckDto checkNickname(String nickname) {
         Boolean isDuplicate = userRepository.existsByNickName(nickname);
         return UserConverter.toNickNameCheckDto(isDuplicate);
+    }
+
+    // 마이페이지 정보 조회
+    public UserResponse.MyPageDto getMyPageInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+
+        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
+        int learningDays = calendar == null ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+
+        return UserConverter.toMyPageDto(user, learningDays);
     }
 }

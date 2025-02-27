@@ -40,7 +40,7 @@ public class HomeService {
     /**
      * 연속 학습한 날짜 범위를 계산
      */
-    private List<LocalDate> calculateConsecutiveLearningDays(Long userId) {
+    public List<LocalDate> calculateConsecutiveLearningDays(Long userId) {
         List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(userId);
 
         if (completedNewsList.isEmpty()) {
@@ -67,6 +67,7 @@ public class HomeService {
 
         LocalDate current = latestStudyDate.orElse(today.minusDays(1)); // 오늘 학습 안 했으면 어제부터 시작
         LocalDate startDate = current;
+        LocalDate endDate = current;
 
         for (CompletedNews news : completedNewsList) {
             LocalDate newsDate = news.getUpdatedAt().toLocalDate();
@@ -78,10 +79,10 @@ public class HomeService {
             }
         }
 
-        return List.of(startDate, today);
+        return List.of(startDate, endDate);
     }
 
-    private int calculateLearningDays(LocalDate startDate, LocalDate endDate) {
+    public int calculateLearningDays(LocalDate startDate, LocalDate endDate) {
         return (int) startDate.until(endDate).getDays() + 1;
     }
 }

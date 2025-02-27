@@ -10,7 +10,6 @@ public interface CompletedNewsRepository extends JpaRepository<CompletedNews, Lo
     boolean existsByUserIdAndNewsId(Long userId, Long newsId);
     CompletedNews findByUserIdAndNewsId(Long userId, Long newsId);
 
-    List<CompletedNews> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<CompletedNews> findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(Long userId);
 
 }

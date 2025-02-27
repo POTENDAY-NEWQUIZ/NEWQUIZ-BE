@@ -1,5 +1,6 @@
 package com.example.newquiz.dto.converter;
 
+import com.example.newquiz.domain.User;
 import com.example.newquiz.dto.response.UserResponse;
 
 public class UserConverter {
@@ -15,6 +16,16 @@ public class UserConverter {
     public static UserResponse.NickNameCheckDto toNickNameCheckDto(Boolean isDuplicate) {
         return UserResponse.NickNameCheckDto.builder()
                 .isDuplicate(isDuplicate)
+                .build();
+    }
+
+    public static UserResponse.MyPageDto toMyPageDto(User user, int learningDays) {
+        return UserResponse.MyPageDto.builder()
+                .nickname(user.getNickName())
+                .maxLearningDays(user.getMaxLearningDays())
+                .learningDays(learningDays)
+                .avgScore(user.getAvgScore())
+                .maxAvgScore(user.getMaxAvgScore())
                 .build();
     }
 }
