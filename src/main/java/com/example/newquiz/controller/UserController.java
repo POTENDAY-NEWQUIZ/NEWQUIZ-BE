@@ -62,4 +62,13 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.LOGOUT_SUCCESS);
     }
 
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<String>> deleteUser(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestHeader("refreshToken") String refreshToken
+    ) {
+        userService.deleteUser(customUserDetails.getUserId(), refreshToken);
+        return ApiResponse.success(SuccessStatus.DELETE_USER_SUCCESS);
+    }
+
 }

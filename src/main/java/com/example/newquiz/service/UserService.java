@@ -9,9 +9,7 @@ import com.example.newquiz.domain.User;
 import com.example.newquiz.dto.converter.UserConverter;
 import com.example.newquiz.dto.request.UserRequest;
 import com.example.newquiz.dto.response.UserResponse;
-import com.example.newquiz.repository.RankingRepository;
-import com.example.newquiz.repository.RefreshTokenRepository;
-import com.example.newquiz.repository.UserRepository;
+import com.example.newquiz.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +26,9 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final RankingRepository rankingRepository;
     private final HomeService homeService;
+    private final CompletedNewsRepository completedNewsRepository;
+    private final QuizResultRepository quizResultRepository;
+
 
     // 회원가입
     @Transactional
@@ -99,5 +100,17 @@ public class UserService {
     public void logout(String refreshToken) {
         Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(refreshToken);
         refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+    }
+
+    // 회원 탈퇴
+    @Transactional
+    public void deleteUser(Long userId, String refreshToken) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(refreshToken);
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+        // 연관된 데이터 삭제
+        userRepository.deleteById(userId);
+        completedNewsRepository.deleteByUserId(userId);
+        quizResultRepository.deleteByUserId(userId);
+        rankingRepository.deleteByUserId(userId);
     }
 }

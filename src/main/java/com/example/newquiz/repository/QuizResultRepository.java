@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
     boolean existsByUserIdAndQuizIdAndIsCorrect(Long userId, Long quizId, Boolean isCorrect);
+    void deleteByUserId(Long userId);
 }
