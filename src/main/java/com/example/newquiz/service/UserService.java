@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -91,5 +92,12 @@ public class UserService {
     public void changeNickname(Long userId, String nickname) {
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
         user.setNickName(nickname);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(String refreshToken) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(refreshToken);
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
     }
 }

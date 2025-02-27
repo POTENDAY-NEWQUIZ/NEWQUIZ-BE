@@ -54,4 +54,12 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.CHANGE_NICKNAME_SUCCESS);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(
+            @RequestHeader("refreshToken") String refreshToken
+    ) {
+        userService.logout(refreshToken);
+        return ApiResponse.success(SuccessStatus.LOGOUT_SUCCESS);
+    }
+
 }
