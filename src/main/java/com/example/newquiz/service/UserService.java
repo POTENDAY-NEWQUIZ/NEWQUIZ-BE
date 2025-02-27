@@ -85,4 +85,11 @@ public class UserService {
 
         return UserConverter.toMyPageDto(user, learningDays);
     }
+
+    // 닉네임 변경
+    @Transactional
+    public void changeNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+        user.setNickName(nickname);
+    }
 }

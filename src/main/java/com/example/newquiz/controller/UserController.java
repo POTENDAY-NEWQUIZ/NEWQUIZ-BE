@@ -45,4 +45,13 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.GET_MYPAGE_INFO_SUCCESS , myPageDto);
     }
 
+    @PatchMapping("/nickname")
+    public ResponseEntity<ApiResponse<String>> changeNickname(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody UserRequest.NickNameChangeDto nickNameChangeDto
+    ) {
+        userService.changeNickname(customUserDetails.getUserId(), nickNameChangeDto.getNickName());
+        return ApiResponse.success(SuccessStatus.CHANGE_NICKNAME_SUCCESS);
+    }
+
 }

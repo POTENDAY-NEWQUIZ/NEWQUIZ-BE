@@ -19,4 +19,10 @@ public class UserRequest {
         @NotBlank(message = "닉네임을 입력해주세요.")
         private String nickName;
     }
+
+    @Data
+    public static class NickNameChangeDto {
+        @NotBlank(message = "닉네임을 입력해주세요.")
+        private String nickName;
+    }
 }
