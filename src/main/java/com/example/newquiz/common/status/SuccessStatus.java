@@ -22,6 +22,7 @@ public enum SuccessStatus implements BaseSuccessStatus {
     NEWS_LIST_SUCCESS(HttpStatus.OK, 200, "분야별 기사 목록 조회 성공입니다."),
     NEWS_DETAIL_SUCCESS(HttpStatus.OK, 200, "기사 원문 조회 성공입니다."),
     SAVE_SUMMARY_SUCCESS(HttpStatus.CREATED, 201, "요약 제출 및 AI 피드백 받기 성공입니다."),
+    SEND_LEVEL_FEEDBACK_SUCCESS(HttpStatus.CREATED, 201, "AI 난이도 조사 제출이 성공되었습니다."),
 
     // 퀴즈 관련 성공
     GET_QUIZ_INFO_SUCCESS(HttpStatus.OK, 200, "퀴즈를 성공적으로 조회했습니다."),

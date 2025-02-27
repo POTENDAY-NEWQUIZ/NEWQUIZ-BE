@@ -3,6 +3,7 @@ package com.example.newquiz.controller;
 import com.example.newquiz.auth.dto.CustomUserDetails;
 import com.example.newquiz.common.response.ApiResponse;
 import com.example.newquiz.common.status.SuccessStatus;
+import com.example.newquiz.dto.request.LevelFeedbackRequest;
 import com.example.newquiz.dto.request.SummaryRequest;
 import com.example.newquiz.dto.response.NewsResponse;
 import com.example.newquiz.dto.response.SummaryResponse;
@@ -47,5 +48,13 @@ public class NewsController {
         return ApiResponse.success(SuccessStatus.SAVE_SUMMARY_SUCCESS, response);
     }
 
+    @PostMapping("/level")
+    public ResponseEntity<ApiResponse<String>> sendLevelFeedback(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody LevelFeedbackRequest.LevelFeedbackDto levelFeedbackDto
+    ) {
+        newsService.sendLevelFeedback(userDetails.getUserId(), levelFeedbackDto);
+        return ApiResponse.success(SuccessStatus.SEND_LEVEL_FEEDBACK_SUCCESS);
+    }
 
 }
