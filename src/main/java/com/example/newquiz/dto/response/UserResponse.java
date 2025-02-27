@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.List;
+
 public class UserResponse {
 
     @Data
@@ -21,6 +25,16 @@ public class UserResponse {
     @AllArgsConstructor
     public static class NickNameCheckDto {
         private Boolean isDuplicate;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class HomeInfoDto {
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private Integer learningDays;
+        private Integer maxLearningDays;
     }
 
 }
