@@ -4,6 +4,9 @@ import com.example.newquiz.common.base.dao.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -46,4 +49,8 @@ public class SynonymQuiz extends BaseEntity {
 
     @Column(name = "word", nullable = false)
     private String word;
+
+    public List<String> getOptions() {
+        return Arrays.asList(option1, option2, option3, option4);
+    }
 }

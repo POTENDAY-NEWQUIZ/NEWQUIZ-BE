@@ -3,6 +3,7 @@ package com.example.newquiz.common.util;
 import com.example.newquiz.auth.dto.CustomUserDetails;
 import com.example.newquiz.auth.service.CustomUserDetailsService;
 import com.example.newquiz.common.exception.GeneralException;
+import com.example.newquiz.common.status.ErrorStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             log.error("JWT 토큰 검증 실패 " + e.getMessage());
+            handleException(response, e);
             return;
         }
         filterChain.doFilter(request, response);
@@ -56,6 +58,14 @@ public class JwtFilter extends OncePerRequestFilter {
         // 특정 경로는 필터링하지 않도록 설정
         String path = request.getRequestURI();
         return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/tokens/issue") || path.startsWith("/api/users/nickname/check")|| path.startsWith("/actuator/health");
+    }
+
+    private void handleException(HttpServletResponse response, Exception e) throws IOException {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"401\", \"message\": \"%s\"}", e.getMessage());
+        response.getWriter().write(jsonResponse);
     }
 
 }
