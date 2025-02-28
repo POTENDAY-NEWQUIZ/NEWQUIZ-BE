@@ -171,14 +171,26 @@ public class NewsService {
         List<Paragraph> paragraphs = paragraphRepository.findByNewsId(newsId);
         List<CompletedNews> completedNews = completedNewsRepository.findAllByNewsId(newsId);
 
-        synonymQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getSynonymQuizId).toList());
-        meaningQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getMeaningQuizId).toList());
-        contentQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getContentQuizId).toList());
+        deleteQuizzesByType(quizzes, Quiz::getSynonymQuizId, synonymQuizRepository);
+        deleteQuizzesByType(quizzes, Quiz::getMeaningQuizId, meaningQuizRepository);
+        deleteQuizzesByType(quizzes, Quiz::getContentQuizId, contentQuizRepository);
+
         paragraphRepository.deleteAll(paragraphs);
         completedNewsRepository.deleteAll(completedNews);
         quizRepository.deleteAll(quizzes);
         newsRepository.delete(news);
     }
 
+    private <T > void deleteQuizzesByType
+            (List < Quiz > quizzes, java.util.function.Function < Quiz, Long > quizIdExtractor, JpaRepository < T, Long > repository)
+    {
+        List<Long> ids = quizzes.stream()
+                .map(quizIdExtractor)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        if (!ids.isEmpty()) {
+            repository.deleteAllById(ids);
+        }
+    }
 
 }
