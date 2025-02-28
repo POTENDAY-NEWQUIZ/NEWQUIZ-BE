@@ -1,7 +1,8 @@
-package com.example.newquiz.dto.request;
+package com.example.newquiz.infra.clova.dto;
 
 import com.example.newquiz.common.util.ResourceLoader;
 import com.example.newquiz.domain.Paragraph;
+import com.example.newquiz.dto.request.SummaryRequest;
 import lombok.Getter;
 
 import java.util.ArrayList;

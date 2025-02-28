@@ -4,7 +4,7 @@ import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.common.util.ClovaUtil;
 import com.example.newquiz.domain.*;
-import com.example.newquiz.dto.request.SummaryFeedbackClovaRequest;
+import com.example.newquiz.infra.clova.dto.SummaryFeedbackClovaRequest;
 import com.example.newquiz.dto.request.SummaryRequest;
 import com.example.newquiz.dto.response.SummaryResponse;
 import com.example.newquiz.repository.*;
@@ -22,14 +22,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SummaryService {
-    private final ClovaUtil clovaUtil;
     private final CompletedNewsRepository completedNewsRepository;
     private final ParagraphRepository paragraphRepository;
     private final QuizRepository quizRepository;
     private final QuizResultRepository quizResultRepository;
     private final UserRepository userRepository;
     private final RankingRepository rankingRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final AISummaryService aiSummaryService;
 
     @Transactional
     public SummaryResponse.SummaryDto saveSummary(Long userId, SummaryRequest.SummaryDto summaryDto) {
@@ -37,10 +36,8 @@ public class SummaryService {
         CompletedNews completedNews = getCompletedNews(userId, summaryDto.getNewsId());
         List<Paragraph> paragraphs = paragraphRepository.findByNewsId(summaryDto.getNewsId());
 
-        // Clova AI 요약 분석 요청 및 결과 저장
-        SummaryResponse.SummaryDto response = parseSummaryResponse(
-                SummaryFeedbackClovaRequest.createSummaryFeedbackClovaRequest(paragraphs, summaryDto.getParagraphs())
-        );
+
+        SummaryResponse.SummaryDto response = aiSummaryService.generateSummary(paragraphs, summaryDto.getParagraphs());
         completedNews.setSummaryScore(response.getTotalScore());
         completedNews.setIsCompleted(true);
 
@@ -145,17 +142,4 @@ public class SummaryService {
         }
     }
 
-    /**
-     * Clova AI API를 호출하여 요약 결과를 가져옴.
-     */
-    private SummaryResponse.SummaryDto parseSummaryResponse(SummaryFeedbackClovaRequest request) {
-        try {
-            String responseJson = clovaUtil.postWebClient(request);
-            log.info("요약 응답: {}", responseJson);
-            return objectMapper.readValue(clovaUtil.parseContentFromResponse(responseJson), SummaryResponse.SummaryDto.class);
-        } catch (Exception e) {
-            log.error("요약 응답 파싱 실패: {}", e.getMessage());
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
-        }
-    }
 }
