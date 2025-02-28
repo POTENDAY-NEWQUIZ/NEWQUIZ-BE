@@ -30,6 +30,10 @@ public class QuizResult extends BaseEntity {
     @Column(name = "is_correct", nullable = false)
     private Boolean isCorrect;
 
+    @Setter
+    @Column(name = "is_checked")
+    private Boolean isChecked;
+
     @Builder
     public static QuizResult toEntity(Long userId, QuizRequest.ResultDto resultDto) {
         return QuizResult.builder()
