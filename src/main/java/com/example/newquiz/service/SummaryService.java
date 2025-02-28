@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -69,7 +70,12 @@ public class SummaryService {
      * 특정 유저가 완료한 뉴스 정보를 가져오기.
      */
     private CompletedNews getCompletedNews(Long userId, Long newsId) {
-        return completedNewsRepository.findByUserIdAndNewsId(userId, newsId);
+        Optional<CompletedNews> complagedNews =  completedNewsRepository.findByUserIdAndNewsId(userId, newsId);
+        if (complagedNews.isPresent()) {
+            return complagedNews.get();
+        } else {
+            throw new GeneralException(ErrorStatus.NOT_FOUND_COMPLETED_NEWS);
+        }
     }
 
     /**
