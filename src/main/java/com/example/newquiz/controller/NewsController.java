@@ -57,4 +57,12 @@ public class NewsController {
         return ApiResponse.success(SuccessStatus.SEND_LEVEL_FEEDBACK_SUCCESS);
     }
 
+    @DeleteMapping("/{newsId}")
+    public ResponseEntity<ApiResponse<String>> deleteNews(
+            @PathVariable Long newsId
+    ) {
+        newsService.deleteNews(newsId);
+        return ApiResponse.success(SuccessStatus.DELETE_NEWS_SUCCESS);
+    }
+
 }

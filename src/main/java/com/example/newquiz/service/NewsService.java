@@ -13,6 +13,7 @@ import com.example.newquiz.dto.converter.NewsConverter;
 import com.example.newquiz.dto.request.LevelFeedbackRequest;
 import com.example.newquiz.dto.response.NewsResponse;
 import com.example.newquiz.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,7 +33,6 @@ public class NewsService {
     private final SynonymQuizRepository synonymQuizRepository;
     private final MeaningQuizRepository meaningQuizRepository;
     private final ContentQuizRepository contentQuizRepository;
-    private final DiscordUtil discordUtil;
     private final DiscordAlarmSender discordAlarmSender;
 
     public NewsResponse.NewsListDto getNewsList(Long userId, String category) {
@@ -160,6 +160,24 @@ public class NewsService {
                 )
                 .filter(java.util.Objects::nonNull)
                 .toList();
+    }
+
+    @Transactional
+    public void deleteNews(Long newsId) {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
+
+        List<Quiz> quizzes = quizRepository.findByNewsId(newsId);
+        List<Paragraph> paragraphs = paragraphRepository.findByNewsId(newsId);
+        List<CompletedNews> completedNews = completedNewsRepository.findAllByNewsId(newsId);
+
+        synonymQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getSynonymQuizId).toList());
+        meaningQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getMeaningQuizId).toList());
+        contentQuizRepository.deleteAllById(quizzes.stream().map(Quiz::getContentQuizId).toList());
+        paragraphRepository.deleteAll(paragraphs);
+        completedNewsRepository.deleteAll(completedNews);
+        quizRepository.deleteAll(quizzes);
+        newsRepository.delete(news);
     }
 
 
