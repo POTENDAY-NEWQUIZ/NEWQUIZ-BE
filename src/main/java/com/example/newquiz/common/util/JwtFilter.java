@@ -64,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"401\", \"message\": \"%s\"}", e.getMessage());
+        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"0401\", \"message\": \"%s\"}", e.getMessage());
         response.getWriter().write(jsonResponse);
     }
 
