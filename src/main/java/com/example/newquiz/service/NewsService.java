@@ -13,6 +13,7 @@ import com.example.newquiz.dto.converter.NewsConverter;
 import com.example.newquiz.dto.request.LevelFeedbackRequest;
 import com.example.newquiz.dto.response.NewsResponse;
 import com.example.newquiz.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,7 +33,6 @@ public class NewsService {
     private final SynonymQuizRepository synonymQuizRepository;
     private final MeaningQuizRepository meaningQuizRepository;
     private final ContentQuizRepository contentQuizRepository;
-    private final DiscordUtil discordUtil;
     private final DiscordAlarmSender discordAlarmSender;
 
     public NewsResponse.NewsListDto getNewsList(Long userId, String category) {
@@ -162,5 +162,35 @@ public class NewsService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteNews(Long newsId) {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
+
+        List<Quiz> quizzes = quizRepository.findByNewsId(newsId);
+        List<Paragraph> paragraphs = paragraphRepository.findByNewsId(newsId);
+        List<CompletedNews> completedNews = completedNewsRepository.findAllByNewsId(newsId);
+
+        deleteQuizzesByType(quizzes, Quiz::getSynonymQuizId, synonymQuizRepository);
+        deleteQuizzesByType(quizzes, Quiz::getMeaningQuizId, meaningQuizRepository);
+        deleteQuizzesByType(quizzes, Quiz::getContentQuizId, contentQuizRepository);
+
+        paragraphRepository.deleteAll(paragraphs);
+        completedNewsRepository.deleteAll(completedNews);
+        quizRepository.deleteAll(quizzes);
+        newsRepository.delete(news);
+    }
+
+    private <T > void deleteQuizzesByType
+            (List < Quiz > quizzes, java.util.function.Function < Quiz, Long > quizIdExtractor, JpaRepository < T, Long > repository)
+    {
+        List<Long> ids = quizzes.stream()
+                .map(quizIdExtractor)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        if (!ids.isEmpty()) {
+            repository.deleteAllById(ids);
+        }
+    }
 
 }

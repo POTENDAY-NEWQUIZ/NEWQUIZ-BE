@@ -12,4 +12,6 @@ public interface CompletedNewsRepository extends JpaRepository<CompletedNews, Lo
     void deleteByUserId(Long userId);
     List<CompletedNews> findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(Long userId);
 
+    List<CompletedNews> findAllByNewsId(Long newsId);
+
 }
