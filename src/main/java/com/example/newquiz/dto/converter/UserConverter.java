@@ -19,10 +19,11 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponse.MyPageDto toMyPageDto(User user, int learningDays) {
+    public static UserResponse.MyPageDto toMyPageDto(User user, int learningDays, int userQuizCount) {
         return UserResponse.MyPageDto.builder()
                 .nickname(user.getNickName())
                 .maxLearningDays(user.getMaxLearningDays())
+                .userQuizCount(userQuizCount)
                 .learningDays(learningDays)
                 .avgScore(user.getAvgScore())
                 .maxAvgScore(user.getMaxAvgScore())
