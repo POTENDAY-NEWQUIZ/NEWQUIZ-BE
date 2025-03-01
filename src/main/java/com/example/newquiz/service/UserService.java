@@ -84,8 +84,9 @@ public class UserService {
 
         List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
         int learningDays = calendar == null ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+        int userQuizCount = completedNewsRepository.countByUserIdAndIsCompletedTrue(userId);
 
-        return UserConverter.toMyPageDto(user, learningDays);
+        return UserConverter.toMyPageDto(user, learningDays, userQuizCount);
     }
 
     // 닉네임 변경

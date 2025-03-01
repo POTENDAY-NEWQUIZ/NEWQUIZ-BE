@@ -42,6 +42,7 @@ public class UserResponse {
     @AllArgsConstructor
     public static class MyPageDto {
         private String nickname;
+        private Integer userQuizCount;
         private Integer maxLearningDays;
         private Integer learningDays;
         private double avgScore;
