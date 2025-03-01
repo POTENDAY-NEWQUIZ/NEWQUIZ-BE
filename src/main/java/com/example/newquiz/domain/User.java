@@ -48,6 +48,9 @@ public class User extends BaseEntity {
                 .providerId(providerId)
                 .nickName(nickName)
                 .birth(birth)
+                .avgScore(0.0)
+                .maxAvgScore(0.0)
+                .maxLearningDays(0)
                 .build();
     }
 }
