@@ -27,6 +27,7 @@ public class QuizCreateService {
     private final SynonymQuizRepository synonymQuizRepository;
     private final MeaningQuizRepository meaningQuizRepository;
     private final ContentQuizRepository contentQuizRepository;
+    private final AntonymQuizRepository antonymQuizRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -105,6 +106,24 @@ public class QuizCreateService {
                                 .build()
                 );
                 quiz.setSynonymQuizId(synonymQuiz.getSynonymQuizId());
+                break;
+
+            case ANTONYM:
+                AntonymQuiz antonymQuiz = antonymQuizRepository.save(
+                        AntonymQuiz.builder()
+                                .quizId(quiz.getQuizId())
+                                .answer(getAnswerIndex(question.getOptions(), question.getAnswer()))
+                                .word(question.getSelectedWord())
+                                .option1(question.getOptions().get(0))
+                                .option2(question.getOptions().get(1))
+                                .option3(question.getOptions().get(2))
+                                .option4(question.getOptions().get(3))
+                                .explanation(question.getExplanation())
+                                .sourceSentence(question.getSourceSentence())
+                                .example(question.getExample())
+                                .build()
+                );
+                quiz.setAntonymQuizId(antonymQuiz.getAntonymQuizId());
                 break;
 
             case MEANING:

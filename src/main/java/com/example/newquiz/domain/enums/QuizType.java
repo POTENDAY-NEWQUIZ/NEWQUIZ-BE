@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum QuizType {
-    SYNONYM("유의어"), MEANING("단어뜻"), CONTENT("내용일치");
+    SYNONYM("유의어"), MEANING("단어뜻"), CONTENT("내용일치"), ANTONYM("반의어");
 
     private final String value;
 

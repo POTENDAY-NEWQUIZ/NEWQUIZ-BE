@@ -16,8 +16,10 @@ public class QuizResponse {
         private int synonymQuizCount;
         private int meaningQuizCount;
         private int contentQuizCount;
+        private int antonymQuizCount;
         private List<Long> quizIdList;
         private List<SynonymQuizDto> synonymQuiz;
+        private List<AntonymQuizDto> antonymQuiz;
         private List<MeaningQuizDto> meaningQuiz;
         private List<ContentQuizDto> contentQuiz;
     }
@@ -26,6 +28,23 @@ public class QuizResponse {
     @Builder
     @AllArgsConstructor
     public static class SynonymQuizDto {
+        private String type;
+        private Long quizId;
+        private Long paragraphId;
+        private String sourceSentence;
+        private String word;
+        private String option1;
+        private String option2;
+        private String option3;
+        private String option4;
+        private int answer;
+        private String explanation;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class AntonymQuizDto {
         private String type;
         private Long quizId;
         private Long paragraphId;

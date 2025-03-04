@@ -33,6 +33,10 @@ public class Quiz extends BaseEntity {
     private Long synonymQuizId;
 
     @Setter
+    @Column(name = "antonym_quiz_id")
+    private Long antonymQuizId;
+
+    @Setter
     @Column(name = "meaning_quiz_id")
     private Long meaningQuizId;
 
