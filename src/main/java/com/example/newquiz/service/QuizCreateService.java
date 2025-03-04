@@ -45,6 +45,29 @@ public class QuizCreateService {
 
         // 퀴즈 저장
         List<Quiz> quizzes = createQuizFromResponse(response, newsId);
+
+        // 퀴즈 검증 및 재요청
+        boolean isValid = validateQuizzes(quizzes);
+        if (!isValid) {
+            log.warn("퀴즈 검증 실패, 퀴즈를 다시 생성합니다. (뉴스 ID: {})", newsId);
+            // 재요청
+            response = parseQuizResponse(request);  // 재요청
+            if (response != null) {
+                quizRepository.deleteAll(quizzes);  // 기존 퀴즈 삭제
+                deleteTypeQuiz(quizzes); // 유형별 퀴즈도 삭제
+                quizzes = createQuizFromResponse(response, newsId);  // 재요청
+                isValid = validateQuizzes(quizzes);  // 검증
+            }
+        }
+
+        // 퀴즈가 여전히 유효하지 않으면 해당 뉴스와 문단 삭제
+        if (!isValid) {
+            log.error("퀴즈 생성 실패: 조건을 만족하지 않음. 뉴스 ID: {}", newsId);
+            quizRepository.deleteAll(quizzes);  // 퀴즈 삭제
+            deleteTypeQuiz(quizzes); // 유형별 퀴즈도 삭제
+            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+        }
+
         quizRepository.saveAll(quizzes);
         log.info("뉴스 ID {}에 대한 퀴즈 {}개 생성 완료", newsId, quizzes.size());
     }
@@ -163,5 +186,84 @@ public class QuizCreateService {
      */
     private int getAnswerIndex(List<String> options, String answer) {
         return options.indexOf(answer) + 1;
+    }
+
+    /**
+     * 퀴즈의 답이 옵션에 포함되어 있는지, selectedWord가 selectedSentence에 포함되어 있는지 검증
+     */
+    private boolean validateQuizzes(List<Quiz> quizzes) {
+        for (Quiz quiz : quizzes) {
+            if (quiz.getType() == QuizType.SYNONYM || quiz.getType() == QuizType.ANTONYM || quiz.getType() == QuizType.MEANING) {
+                // 각 퀴즈 유형에서 answer가 options에 포함되어 있는지 확인
+                if (!isAnswerInOptions(quiz)) {
+                    log.warn("퀴즈의 답이 옵션에 포함되지 않음. 퀴즈 ID: {}", quiz.getQuizId());
+                    return false;
+                }
+            }
+
+            if (quiz.getType() == QuizType.SYNONYM || quiz.getType() == QuizType.ANTONYM || quiz.getType() == QuizType.MEANING) {
+                // selectedWord가 selectedSentence에 포함되어 있는지 확인
+                if (!isSelectedWordInSentence(quiz)) {
+                    log.warn("퀴즈의 selectedWord가 selectedSentence에 포함되지 않음. 퀴즈 ID: {}", quiz.getQuizId());
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isAnswerInOptions(Quiz quiz) {
+        switch (quiz.getType()) {
+            case SYNONYM:
+                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
+                        .map(synonymQuiz -> synonymQuiz.getOptions().contains(synonymQuiz.getAnswer()))
+                        .orElse(false);
+            case ANTONYM:
+                return antonymQuizRepository.findById(quiz.getAntonymQuizId())
+                        .map(antonymQuiz -> antonymQuiz.getOptions().contains(antonymQuiz.getAnswer()))
+                        .orElse(false);
+            case MEANING:
+                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
+                        .map(meaningQuiz -> meaningQuiz.getOptions().contains(meaningQuiz.getAnswer()))
+                        .orElse(false);
+        }
+        return false;
+    }
+
+    private boolean isSelectedWordInSentence(Quiz quiz) {
+        switch (quiz.getType()) {
+            case SYNONYM:
+                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
+                        .map(synonymQuiz -> synonymQuiz.getSourceSentence().contains(synonymQuiz.getWord()))
+                        .orElse(false);
+            case ANTONYM:
+                return antonymQuizRepository.findById(quiz.getAntonymQuizId())
+                        .map(antonymQuiz -> antonymQuiz.getSourceSentence().contains(antonymQuiz.getWord()))
+                        .orElse(false);
+            case MEANING:
+                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
+                        .map(meaningQuiz -> meaningQuiz.getSourceSentence().contains(meaningQuiz.getWord()))
+                        .orElse(false);
+        }
+        return false;
+    }
+
+    private void deleteTypeQuiz(List<Quiz> quizzes) {
+        for (Quiz quiz : quizzes) {
+            switch (quiz.getType()) {
+                case SYNONYM:
+                    synonymQuizRepository.deleteById(quiz.getSynonymQuizId());
+                    break;
+                case ANTONYM:
+                    antonymQuizRepository.deleteById(quiz.getAntonymQuizId());
+                    break;
+                case MEANING:
+                    meaningQuizRepository.deleteById(quiz.getMeaningQuizId());
+                    break;
+                case CONTENT:
+                    contentQuizRepository.deleteById(quiz.getContentQuizId());
+                    break;
+            }
+        }
     }
 }
