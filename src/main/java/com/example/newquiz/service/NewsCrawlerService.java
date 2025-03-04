@@ -36,7 +36,7 @@ public class NewsCrawlerService {
     private static final List<String> ALLOWED_SOURCES = Arrays.asList(
             "강원일보", "경기일보", "경향신문", "국민일보", "국제신문", "농민신문",
             "대전일보", "동아일보", "디지털타임스", "매일경제", "매일신문", "문화일보",
-            "부산일보", "서울경제", "서울신문", "세계일보", "이데일리", "조선일보",
+            "부산일보", "서울경제", "서울신문", "이데일리", "조선일보",
             "중앙일보", "파이낸셜뉴스", "한겨레", "한국경제", "한국일보", "헤럴드경제",
             "강원도민일보"
     );
@@ -137,7 +137,7 @@ public class NewsCrawlerService {
     }
 
     /**
-     * 문단 저장
+     * 문단 저장 및 뉴스 난이도 저장
      */
     private void saveParagraphs(News news, Element articleElement) {
         List<TextNode> textNodes = articleElement.textNodes();
@@ -150,7 +150,14 @@ public class NewsCrawlerService {
                 paragraphRepository.save(para);
             }
         }
+
+        if (order >= 5) {
+            news.setLevel("상");
+        } else {
+            news.setLevel("하");
+        }
     }
+
 
     /**
      * AI 분류 및 퀴즈 생성 처리
