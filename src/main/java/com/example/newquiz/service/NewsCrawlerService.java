@@ -31,6 +31,7 @@ public class NewsCrawlerService {
     private final NewsCategorizeService newsCategorizeService;
     private final NewsRepository newsRepository;
     private final ParagraphRepository paragraphRepository;
+    private final SummaryV2Service summaryV2Service;
 
     private static final String BASE_URL = "https://news.naver.com/opinion/editorial";
     private static final List<String> ALLOWED_SOURCES = Arrays.asList(
@@ -158,6 +159,18 @@ public class NewsCrawlerService {
         }
     }
 
+    /**
+     * 문단별 AI 요약 생성
+     */
+    private void createSummaries(News news) {
+        try {
+            summaryV2Service.saveSummary(news);
+        } catch (Exception e) {
+            log.error("🚨 AI 요약 생성 실패 원인: {}", e.getMessage());
+        }
+    }
+
+
 
     /**
      * AI 분류 및 퀴즈 생성 처리
@@ -173,6 +186,15 @@ public class NewsCrawlerService {
         }
 
         try {
+            createSummaries(newsRepository.findById(newsId).get());
+        } catch (Exception e) {
+            log.error("🚨 AI 요약 생성 실패 원인: {}", e.getMessage());
+            newsRepository.deleteById(newsId);
+            paragraphRepository.deleteByNewsId(newsId);
+            return;
+        }
+
+        try {
             quizCreateService.createQuiz(newsId);
         } catch (Exception e) {
             log.error("🚨 퀴즈 생성 실패 원인: {}", e.getMessage());
@@ -181,4 +203,6 @@ public class NewsCrawlerService {
             return;
         }
     }
+
+
 }
