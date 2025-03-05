@@ -130,7 +130,7 @@ public class NewsCrawlerService {
             }
         }
 
-        if (order >= 5) {
+        if (order > 5) {
             news.setLevel("상");
         } else {
             news.setLevel("하");
