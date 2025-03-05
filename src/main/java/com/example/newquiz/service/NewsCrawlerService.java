@@ -43,7 +43,7 @@ public class NewsCrawlerService {
     );
 
 
-    @Scheduled(cron = "0 0 5 * * ?") // 테스트 중
+    @Scheduled(cron = "0 16 5 * * ?") // 테스트 중
     public void crawlNews() {
         try {
             log.info("📰 뉴스 크롤링 시작...");

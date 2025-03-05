@@ -98,26 +98,6 @@ public class SummaryService {
     }
 
     /**
-     * 연속 학습 일수를 계산.
-     */
-    private int calculateConsecutiveLearningDays(Long userId) {
-        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(userId);
-        int consecutiveDays = 0;
-        LocalDate previousDate = LocalDate.now();
-
-        for (CompletedNews news : completedNewsList) {
-            LocalDate currentDate = news.getCreatedAt().toLocalDate();
-            if (currentDate.equals(previousDate) || currentDate.equals(previousDate.minusDays(1))) {
-                consecutiveDays++;
-                previousDate = currentDate;
-            } else {
-                break;
-            }
-        }
-        return consecutiveDays;
-    }
-
-    /**
      * 사용자의 연속 학습 일수를 업데이트.
      */
     private void updateUserLearningStreak(User user, int consecutiveDays) {
