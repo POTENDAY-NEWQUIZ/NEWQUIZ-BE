@@ -31,12 +31,13 @@ public class NewsCrawlerService {
     private final NewsCategorizeService newsCategorizeService;
     private final NewsRepository newsRepository;
     private final ParagraphRepository paragraphRepository;
+    private final SummaryV2Service summaryV2Service;
 
     private static final String BASE_URL = "https://news.naver.com/opinion/editorial";
     private static final List<String> ALLOWED_SOURCES = Arrays.asList(
             "강원일보", "경기일보", "경향신문", "국민일보", "국제신문", "농민신문",
             "대전일보", "동아일보", "디지털타임스", "매일경제", "매일신문", "문화일보",
-            "부산일보", "서울경제", "서울신문", "세계일보", "이데일리", "조선일보",
+            "부산일보", "서울경제", "서울신문", "이데일리", "조선일보",
             "중앙일보", "파이낸셜뉴스", "한겨레", "한국경제", "한국일보", "헤럴드경제",
             "강원도민일보"
     );
@@ -53,37 +54,14 @@ public class NewsCrawlerService {
             for (Element link : newsLinks) {
                 log.info("크롤링 시도 횟수 : {}", i++);
                 String articleUrl = link.attr("href");
-                crawlArticleWithRetry(articleUrl);
+                crawlArticle(articleUrl);
             }
         } catch (Exception e) {
             log.error("❌ 뉴스 크롤링 실패 원인 : {}", e.getMessage());
         }
     }
 
-    /**
-     * 최대 2번까지 크롤링 재시도하는 메서드
-     */
-    private void crawlArticleWithRetry(String url) {
-        int maxRetries = 2;
-        int attempt = 0;
 
-        while (attempt < maxRetries) {
-            try {
-                log.info("📰 기사 크롤링 시도 (시도 횟수: {}/{}) - {}", attempt + 1, maxRetries, url);
-                crawlArticle(url);
-                return; // 성공하면 바로 종료
-            } catch (Exception e) {
-                log.warn("⚠️ 기사 크롤링 실패 ({}회차) - {}, 원인: {}", attempt + 1, url, e.getMessage());
-                attempt++;
-
-                if (attempt >= maxRetries) {
-                    log.error("❌ 최대 재시도 횟수 초과, 크롤링 포기: {}", url);
-                }
-            }
-        }
-    }
-
-    @Transactional
     protected void crawlArticle(String url) {
         try {
             Document doc = Jsoup
@@ -123,7 +101,8 @@ public class NewsCrawlerService {
     /**
      * 뉴스 및 문단 저장
      */
-    private Long saveNewsWithParagraphs(String title, LocalDate date, String source, Element articleElement) {
+    @Transactional
+    protected Long saveNewsWithParagraphs(String title, LocalDate date, String source, Element articleElement) {
         try {
             News news = News.toEntity(title, date, source);
             news = newsRepository.save(news);
@@ -137,7 +116,7 @@ public class NewsCrawlerService {
     }
 
     /**
-     * 문단 저장
+     * 문단 저장 및 뉴스 난이도 저장
      */
     private void saveParagraphs(News news, Element articleElement) {
         List<TextNode> textNodes = articleElement.textNodes();
@@ -150,18 +129,31 @@ public class NewsCrawlerService {
                 paragraphRepository.save(para);
             }
         }
+
+        if (order >= 5) {
+            news.setLevel("상");
+        } else {
+            news.setLevel("하");
+        }
     }
+
+
 
     /**
      * AI 분류 및 퀴즈 생성 처리
      */
-    private void handlePostProcessing(Long newsId) {
+    protected void handlePostProcessing(Long newsId) {
         try {
             newsCategorizeService.categorizeNews(newsId);
         } catch (Exception e) {
             log.error("🚨 AI 카테고리 분류 실패 원인: {}", e.getMessage());
-            newsRepository.deleteById(newsId);
-            paragraphRepository.deleteByNewsId(newsId);
+            return;
+        }
+
+        try {
+            summaryV2Service.saveSummary(newsRepository.findById(newsId).get());
+        } catch (Exception e) {
+            log.error("🚨 AI 요약 생성 실패 원인: {}", e.getMessage());
             return;
         }
 
@@ -169,9 +161,9 @@ public class NewsCrawlerService {
             quizCreateService.createQuiz(newsId);
         } catch (Exception e) {
             log.error("🚨 퀴즈 생성 실패 원인: {}", e.getMessage());
-            newsRepository.deleteById(newsId);
-            paragraphRepository.deleteByNewsId(newsId);
             return;
         }
     }
+
+
 }

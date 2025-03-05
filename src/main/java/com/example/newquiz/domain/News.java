@@ -34,6 +34,14 @@ public class News extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NewsCategory category;
 
+    @Setter
+    @Column(name = "level")
+    private String level;
+
+    @Setter
+    @Column(name = "total_summary")
+    private String totalSummary;
+
     @Builder
     public static News toEntity(String title, LocalDate date, String source) {
         return News.builder()

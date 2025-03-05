@@ -39,8 +39,8 @@ public class QuizService {
 
         // 각 퀴즈ID에 대한 List 만들기
         List<Long> quizIds = sysnonymList.stream().map(Quiz::getQuizId).collect(Collectors.toList());
-        quizIds.addAll(meaningList.stream().map(Quiz::getQuizId).collect(Collectors.toList()));
-        quizIds.addAll(contentList.stream().map(Quiz::getQuizId).collect(Collectors.toList()));
+        quizIds.addAll(meaningList.stream().map(Quiz::getQuizId).toList());
+        quizIds.addAll(contentList.stream().map(Quiz::getQuizId).toList());
 
         // 카테고리별로 DTO 생성
         List<QuizResponse.SynonymQuizDto> synonymQuizDto = createSynonymQuizDto(sysnonymList);

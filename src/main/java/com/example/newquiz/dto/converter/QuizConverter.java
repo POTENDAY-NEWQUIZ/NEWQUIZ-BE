@@ -1,9 +1,6 @@
 package com.example.newquiz.dto.converter;
 
-import com.example.newquiz.domain.ContentQuiz;
-import com.example.newquiz.domain.MeaningQuiz;
-import com.example.newquiz.domain.Quiz;
-import com.example.newquiz.domain.SynonymQuiz;
+import com.example.newquiz.domain.*;
 import com.example.newquiz.domain.enums.QuizType;
 import com.example.newquiz.dto.response.QuizResponse;
 

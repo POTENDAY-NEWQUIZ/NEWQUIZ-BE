@@ -27,6 +27,11 @@ public class Paragraph extends BaseEntity {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Lob
+    @Setter
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
+
     @Builder
     public static Paragraph toEntity(Long newsId, Integer content_order, String content) {
         return Paragraph.builder()

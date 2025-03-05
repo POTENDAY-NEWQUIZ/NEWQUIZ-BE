@@ -9,4 +9,6 @@ import java.util.List;
 public interface SynonymQuizRepository extends JpaRepository<SynonymQuiz, Long> {
     @Query("SELECT s FROM SynonymQuiz s WHERE s.quizId IN :quizId")
     List<SynonymQuiz> findAllByQuizId(List<Long> quizId);
+
+
 }

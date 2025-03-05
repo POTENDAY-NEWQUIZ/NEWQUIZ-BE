@@ -40,6 +40,13 @@ jobs:
         EOF
       shell: bash
 
+    - name: Generate summary-generate-prompt.txt
+      run: |
+        cat <<EOF > ./src/main/resources/summary-generate-prompt.txt
+        ${{ secrets.SUMMARY_GENERATE_PROMPT }}
+        EOF
+      shell: bash
+
     - name: Generate summary-feedback-prompt.txt
       run: |
         cat <<EOF > ./src/main/resources/summary-feedback-prompt.txt

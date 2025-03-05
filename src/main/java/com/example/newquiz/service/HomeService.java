@@ -11,10 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +26,11 @@ public class HomeService {
 
         // 연속 학습한 날짜 범위 계산
         List<LocalDate> calendar = calculateConsecutiveLearningDays(userId);
-        int learningDays = calendar == null ? 0 : calculateLearningDays(calendar.get(0), calendar.get(1));
+        int learningDays = (calendar == null || calendar.isEmpty()) ? 0 : calculateLearningDays(calendar.get(0), calendar.get(1));
 
         return UserResponse.HomeInfoDto.builder()
-                .startDate(calendar == null ? null : calendar.get(0))
-                .endDate(calendar == null ? null : calendar.get(1))
+                .startDate(calendar == null || calendar.isEmpty() ? null : calendar.get(0))
+                .endDate(calendar == null || calendar.isEmpty() ? null : calendar.get(1))
                 .learningDays(learningDays)
                 .maxLearningDays(user.getMaxLearningDays())
                 .build();
@@ -48,6 +46,15 @@ public class HomeService {
             return null; // 학습 기록이 없으면 null 반환
         }
 
+        // 가장 최신 학습일을 추출
+        LocalDate latestLearningDate = completedNewsList.get(0).getUpdatedAt().toLocalDate();
+
+        // 최신 학습일이 오늘 또는 어제가 아닌 경우 연속 학습 일수 계산을 하지 않음
+        LocalDate today = LocalDate.now();
+        if (!latestLearningDate.equals(today) && !latestLearningDate.equals(today.minusDays(1))) {
+            return null;
+        }
+
         // 날짜만 추출하여 정렬된 리스트 생성
         List<LocalDate> dates = completedNewsList.stream()
                 .map(news -> news.getUpdatedAt().toLocalDate())
@@ -55,7 +62,6 @@ public class HomeService {
                 .sorted(Comparator.reverseOrder()) // 최신 날짜부터 정렬
                 .toList();
 
-        LocalDate today = LocalDate.now();
         LocalDate startDate;
         LocalDate endDate;
 

@@ -16,6 +16,7 @@ public class QuizResponse {
         private int synonymQuizCount;
         private int meaningQuizCount;
         private int contentQuizCount;
+        private int antonymQuizCount;
         private List<Long> quizIdList;
         private List<SynonymQuizDto> synonymQuiz;
         private List<MeaningQuizDto> meaningQuiz;

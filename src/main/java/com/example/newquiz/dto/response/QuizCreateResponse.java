@@ -21,7 +21,7 @@ public class QuizCreateResponse {
     public static class Question {
         private String type;
         private String selectedWord;
-        private String sourceSentence;
+        private String sentence;
         private List<String> options;
         private String answer;
         private String explanation;
