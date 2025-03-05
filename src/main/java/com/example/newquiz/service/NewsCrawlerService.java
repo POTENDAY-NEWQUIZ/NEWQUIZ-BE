@@ -135,6 +135,7 @@ public class NewsCrawlerService {
         } else {
             news.setLevel("하");
         }
+        newsRepository.save(news);
     }
 
 
