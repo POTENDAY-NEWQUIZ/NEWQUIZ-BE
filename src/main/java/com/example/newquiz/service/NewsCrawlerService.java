@@ -162,6 +162,8 @@ public class NewsCrawlerService {
             quizCreateService.createQuiz(newsId);
         } catch (Exception e) {
             log.error("🚨 퀴즈 생성 실패 원인: {}", e.getMessage());
+            newsRepository.deleteById(newsId);
+            paragraphRepository.deleteAllByNewsId(newsId);
             return;
         }
     }
