@@ -53,4 +53,8 @@ public class MeaningQuiz extends BaseEntity {
     public List<String> getOptions() {
         return Arrays.asList(option1, option2, option3, option4);
     }
+
+    public String getOption(int index) {
+        return getOptions().get(index);
+    }
 }

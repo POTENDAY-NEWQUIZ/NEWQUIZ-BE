@@ -16,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.newquiz.dto.converter.QuizConverter.antonymQuizDtoList;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,6 @@ public class QuizService {
     private final MeaningQuizRepository meaningQuizRepository;
     private final QuizResultRepository quizResultRepository;
     private final CompletedNewsRepository completedNewsRepository;
-    private final AntonymQuizRepository antonymQuizRepository;
 
     public QuizResponse.QuizListDto getQuizInfo(Long userId, Long newsId) {
 
@@ -37,24 +34,21 @@ public class QuizService {
 
         // 퀴즈가 있으면 Quiz 테이블에서 카테고리별로 가져옴
         List<Quiz> sysnonymList = quizRepository.findByNewsIdAndType(newsId, QuizType.SYNONYM);
-        List<Quiz> antonymList = quizRepository.findByNewsIdAndType(newsId, QuizType.ANTONYM);
         List<Quiz> meaningList = quizRepository.findByNewsIdAndType(newsId, QuizType.MEANING);
         List<Quiz> contentList = quizRepository.findByNewsIdAndType(newsId, QuizType.CONTENT);
 
         // 각 퀴즈ID에 대한 List 만들기
         List<Long> quizIds = sysnonymList.stream().map(Quiz::getQuizId).collect(Collectors.toList());
         quizIds.addAll(meaningList.stream().map(Quiz::getQuizId).toList());
-        quizIds.addAll(antonymList.stream().map(Quiz::getQuizId).toList());
         quizIds.addAll(contentList.stream().map(Quiz::getQuizId).toList());
 
         // 카테고리별로 DTO 생성
         List<QuizResponse.SynonymQuizDto> synonymQuizDto = createSynonymQuizDto(sysnonymList);
-        List<QuizResponse.AntonymQuizDto> antonymQuizDto = createAntonymQuizDto(antonymList);
         List<QuizResponse.MeaningQuizDto> meaningQuizDto = createMeaningQuizDto(meaningList);
         List<QuizResponse.ContentQuizDto> contentQuizDto = createContentQuizDto(contentList);
 
         // QuizListDto에 추가
-        return QuizConverter.toQuizListDto(quizIds, sysnonymList.size(), antonymList.size(), meaningList.size(), contentList.size(), synonymQuizDto, meaningQuizDto, contentQuizDto, antonymQuizDto);
+        return QuizConverter.toQuizListDto(quizIds, sysnonymList.size(), meaningList.size(), contentList.size(), synonymQuizDto, meaningQuizDto, contentQuizDto);
 
         // 리턴
     }
@@ -76,17 +70,6 @@ public class QuizService {
 
         // DTO 변환
         return QuizConverter.toSynonymQuizDtoList(synonymQuizList, synonymList);
-    }
-
-    private List<QuizResponse.AntonymQuizDto> createAntonymQuizDto(List<Quiz> antonymList) {
-        // antonymList에서 quizId 가져오기
-        List<Long> antonymQuizIds = antonymList.stream().map(Quiz::getQuizId).collect(Collectors.toList());
-
-        // antonymQuiz와 Quiz 엔티티 가져오기
-        List<AntonymQuiz> antonymQuizList = antonymQuizRepository.findAllByQuizId(antonymQuizIds);
-
-        // DTO 변환
-        return antonymQuizDtoList(antonymQuizList, antonymList);
     }
 
     private List<QuizResponse.MeaningQuizDto> createMeaningQuizDto(List<Quiz> meaningList) {

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum NewsCategory {
-    POLITICS("정치"), ECONOMY("경제"), SOCIETY("사회"), ETC("기타");
+    POLITICS("정치"), ECONOMY("경제"), SOCIETY("사회"), GLOBAL("글로벌");
 
     private final String value;
 

@@ -50,14 +50,16 @@ public class NewsCategorizeService {
                 case "정치" -> NewsCategory.POLITICS;
                 case "경제" -> NewsCategory.ECONOMY;
                 case "사회" -> NewsCategory.SOCIETY;
-                default -> NewsCategory.ETC;
+                case "글로벌" -> NewsCategory.GLOBAL;
+                default -> throw new GeneralException(ErrorStatus.NEWS_CATEGORY_INVALID_AI_RESPONSE);
             };
 
             updateNewsCategory(newsId, category);
 
         } catch (Exception e) {
-            // 예외 발생 시 분류 실패한 뉴스만 건너뛰고 전체 크롤링은 계속 진행
             log.error("🚨 뉴스 ID {} 카테고리 분류 실패: {}", newsId, e.getMessage(), e);
+            newsRepository.deleteById(newsId);
+            paragraphRepository.deleteAllByNewsId(newsId);
         }
     }
 
@@ -65,7 +67,7 @@ public class NewsCategorizeService {
         try {
             return objectMapper.readValue(aiResponse, NewsCategorizeResponse.class);
         } catch (JsonProcessingException e) {
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+            throw new GeneralException(ErrorStatus.NEWS_CATEGORY_INVALID_AI_RESPONSE);
         }
     }
 

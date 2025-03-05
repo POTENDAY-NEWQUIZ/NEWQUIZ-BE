@@ -24,10 +24,10 @@ public class QuizCreateService {
     private final ClovaUtil clovaUtil;
     private final ParagraphRepository paragraphRepository;
     private final QuizRepository quizRepository;
+    private final NewsRepository newsRepository;
     private final SynonymQuizRepository synonymQuizRepository;
     private final MeaningQuizRepository meaningQuizRepository;
     private final ContentQuizRepository contentQuizRepository;
-    private final AntonymQuizRepository antonymQuizRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -40,60 +40,84 @@ public class QuizCreateService {
 
         // Clova AI 요청 및 응답 파싱
         QuizCreateClovaRequest request = QuizCreateClovaRequest.createQuizCreateClovaRequest(paragraphs);
-        QuizCreateResponse response = parseQuizResponse(request);
-        if (response == null) return;
+        QuizCreateResponse response = getQuizResponse(request);
 
-        // 퀴즈 저장
-        List<Quiz> quizzes = createQuizFromResponse(response, newsId);
-
-        // 퀴즈 검증 및 재요청
-        boolean isValid = validateQuizzes(quizzes);
-        if (!isValid) {
-            log.warn("퀴즈 검증 실패, 퀴즈를 다시 생성합니다. (뉴스 ID: {})", newsId);
-            // 재요청
-            response = parseQuizResponse(request);  // 재요청
-            if (response != null) {
-                quizRepository.deleteAll(quizzes);  // 기존 퀴즈 삭제
-                deleteTypeQuiz(quizzes); // 유형별 퀴즈도 삭제
-                quizzes = createQuizFromResponse(response, newsId);  // 재요청
-                isValid = validateQuizzes(quizzes);  // 검증
+        if (response == null) {
+            log.info(" 1 퀴즈 응답 파싱 실패로 인한 재시도...");
+            response = getQuizResponse(request);
+            if (response == null) {
+                log.info("2 퀴즈 응답 파싱 실패로 인한 뉴스 삭제...");
+                deleteNewsResource(newsId);
+                throw new GeneralException(ErrorStatus.QUIZ_INVALID_AI_RESPONSE);
             }
         }
 
-        // 퀴즈가 여전히 유효하지 않으면 해당 뉴스와 문단 삭제
-        if (!isValid) {
-            log.error("퀴즈 생성 실패: 조건을 만족하지 않음. 뉴스 ID: {}", newsId);
-            quizRepository.deleteAll(quizzes);  // 퀴즈 삭제
-            deleteTypeQuiz(quizzes); // 유형별 퀴즈도 삭제
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+        List<Quiz> quizzes = createQuizFromResponse(response, newsId);
+        if (quizzes == null) {
+            log.info("3 퀴즈 타입 응답 실패로 인한 뉴스 삭제...");
+            deleteNewsResource(newsId);
+            throw new GeneralException(ErrorStatus.QUIZ_TYPE_INVALID_AI_RESPONSE);
         }
 
-        quizRepository.saveAll(quizzes);
-        log.info("뉴스 ID {}에 대한 퀴즈 {}개 생성 완료", newsId, quizzes.size());
+        if (!validateQuizzes(quizzes)) {
+            log.info("4 퀴즈 유효성 검사 실패로 인한 재요청...");
+            deleteQuizResource(quizzes);
+            response = getQuizResponse(request);
+            if (response == null) {
+                log.info("5 퀴즈 응답 파싱 실패로 인한 뉴스 삭제...");
+                deleteNewsResource(newsId);
+                throw new GeneralException(ErrorStatus.QUIZ_INVALID_AI_RESPONSE);
+            }
+            quizzes = createQuizFromResponse(response, newsId);
+            if (quizzes == null) {
+                log.info("6 퀴즈 타입 응답 실패로 인한 뉴스 삭제...");
+                deleteQuizResource(quizzes);
+                deleteNewsResource(newsId);
+                throw new GeneralException(ErrorStatus.QUIZ_TYPE_INVALID_AI_RESPONSE);
+            } else if (!validateQuizzes(quizzes)) {
+                log.info("7 퀴즈 유효성 검사 실패로 인한 뉴스 삭제...");
+                deleteNewsResource(newsId);
+                deleteQuizResource(quizzes);
+                throw new GeneralException(ErrorStatus.QUIZ_INVALID_AI_RESPONSE);
+            }
+        }
+        log.info("✅ 퀴즈 생성 완료 => 생성된 퀴즈 개수 : {}", quizzes.size());
+    }
+
+    protected void deleteNewsResource(Long newsId) {
+        newsRepository.deleteById(newsId);
+        paragraphRepository.deleteAllByNewsId(newsId);
+    }
+
+    protected void deleteQuizResource(List<Quiz> quizzes) {
+        quizRepository.deleteAllByIdInBatch(quizzes.stream().map(Quiz::getQuizId).toList());
+        deleteTypeQuiz(quizzes);
     }
 
     /**
      * Clova AI로부터 퀴즈 생성 요청을 보내고 응답을 파싱하는 메서드
      */
-    private QuizCreateResponse parseQuizResponse(QuizCreateClovaRequest request) {
+    private QuizCreateResponse getQuizResponse(QuizCreateClovaRequest request) {
         try {
             String responseJson = clovaUtil.postWebClient(request);
             return objectMapper.readValue(clovaUtil.parseContentFromResponse(responseJson), QuizCreateResponse.class);
         } catch (Exception e) {
             log.error("퀴즈 생성 응답 파싱 실패: {}", e.getMessage());
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+            return null;
         }
     }
 
     /**
      * Clova AI 응답 데이터를 바탕으로 Quiz 엔티티 생성
      */
-    private List<Quiz> createQuizFromResponse(QuizCreateResponse response, Long newsId) {
+    protected List<Quiz> createQuizFromResponse(QuizCreateResponse response, Long newsId) {
         List<Quiz> quizzes = new ArrayList<>();
 
         for (QuizCreateResponse.Question question : response.getQuestions()) {
-            QuizType quizType = QuizType.getQuizType(question.getType());
-
+            QuizType quizType = checkQuizType(question.getType());
+            if (quizType == null) {
+                return null;
+            }
             Quiz quiz = quizRepository.save(
                     Quiz.builder()
                             .newsId(newsId)
@@ -106,6 +130,76 @@ public class QuizCreateService {
             quizzes.add(quiz);
         }
         return quizzes;
+    }
+
+    protected void deleteTypeQuiz(List<Quiz> quizzes) {
+        for (Quiz quiz : quizzes) {
+            Optional.ofNullable(quiz.getType())
+                    .ifPresent(type -> {
+                        switch (type) {
+                            case SYNONYM:
+                                synonymQuizRepository.deleteById(quiz.getSynonymQuizId());
+                                break;
+                            case MEANING:
+                                meaningQuizRepository.deleteById(quiz.getMeaningQuizId());
+                                break;
+                            case CONTENT:
+                                contentQuizRepository.deleteById(quiz.getContentQuizId());
+                                break;
+                        }
+                    });
+        }
+    }
+
+    private QuizType checkQuizType(String type) {
+        QuizType quizType = QuizType.getQuizType(type);
+        if (quizType == null) {
+            return null;
+        } else {
+            return quizType;
+        }
+    }
+
+    private boolean validateQuizzes(List<Quiz> quizzes) {
+        return quizzes.stream().allMatch(this::isQuizValid);
+    }
+
+    private boolean isQuizValid(Quiz quiz) {
+        switch (quiz.getType()) {
+            case SYNONYM:
+            case MEANING:
+                return isAnswerInOptions(quiz) && isSelectedWordInSentence(quiz);
+            default:
+                return true;
+        }
+    }
+
+    private boolean isAnswerInOptions(Quiz quiz) {
+        switch (quiz.getType()) {
+            case SYNONYM:
+                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
+                        .map(synonymQuiz -> synonymQuiz.getOptions().contains(synonymQuiz.getOption(synonymQuiz.getAnswer() - 1)))
+                        .orElse(false);
+            case MEANING:
+                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
+                        .map(meaningQuiz -> meaningQuiz.getOptions().contains(meaningQuiz.getOption(meaningQuiz.getAnswer() - 1)))
+                        .orElse(false);
+        }
+        return false;
+    }
+
+    private boolean isSelectedWordInSentence(Quiz quiz) {
+        switch (quiz.getType()) {
+            case SYNONYM:
+                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
+                        .map(synonymQuiz -> synonymQuiz.getSourceSentence().contains(synonymQuiz.getWord()))
+                        .orElse(false);
+            case MEANING:
+                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
+                        .map(meaningQuiz -> meaningQuiz.getSourceSentence().contains(meaningQuiz.getWord()))
+                        .orElse(false);
+        }
+        return false;
     }
 
     /**
@@ -124,29 +218,11 @@ public class QuizCreateService {
                                 .option3(question.getOptions().get(2))
                                 .option4(question.getOptions().get(3))
                                 .explanation(question.getExplanation())
-                                .sourceSentence(question.getSourceSentence())
+                                .sourceSentence(question.getSentence())
                                 .example(question.getExample())
                                 .build()
                 );
                 quiz.setSynonymQuizId(synonymQuiz.getSynonymQuizId());
-                break;
-
-            case ANTONYM:
-                AntonymQuiz antonymQuiz = antonymQuizRepository.save(
-                        AntonymQuiz.builder()
-                                .quizId(quiz.getQuizId())
-                                .answer(getAnswerIndex(question.getOptions(), question.getAnswer()))
-                                .word(question.getSelectedWord())
-                                .option1(question.getOptions().get(0))
-                                .option2(question.getOptions().get(1))
-                                .option3(question.getOptions().get(2))
-                                .option4(question.getOptions().get(3))
-                                .explanation(question.getExplanation())
-                                .sourceSentence(question.getSourceSentence())
-                                .example(question.getExample())
-                                .build()
-                );
-                quiz.setAntonymQuizId(antonymQuiz.getAntonymQuizId());
                 break;
 
             case MEANING:
@@ -159,7 +235,7 @@ public class QuizCreateService {
                                 .option3(question.getOptions().get(2))
                                 .option4(question.getOptions().get(3))
                                 .explanation(question.getExplanation())
-                                .sourceSentence(question.getSourceSentence())
+                                .sourceSentence(question.getSentence())
                                 .word(question.getSelectedWord())
                                 .example(question.getExample())
                                 .build()
@@ -186,84 +262,5 @@ public class QuizCreateService {
      */
     private int getAnswerIndex(List<String> options, String answer) {
         return options.indexOf(answer) + 1;
-    }
-
-    /**
-     * 퀴즈의 답이 옵션에 포함되어 있는지, selectedWord가 selectedSentence에 포함되어 있는지 검증
-     */
-    private boolean validateQuizzes(List<Quiz> quizzes) {
-        for (Quiz quiz : quizzes) {
-            if (quiz.getType() == QuizType.SYNONYM || quiz.getType() == QuizType.ANTONYM || quiz.getType() == QuizType.MEANING) {
-                // 각 퀴즈 유형에서 answer가 options에 포함되어 있는지 확인
-                if (!isAnswerInOptions(quiz)) {
-                    log.warn("퀴즈의 답이 옵션에 포함되지 않음. 퀴즈 ID: {}", quiz.getQuizId());
-                    return false;
-                }
-            }
-
-            if (quiz.getType() == QuizType.SYNONYM || quiz.getType() == QuizType.ANTONYM || quiz.getType() == QuizType.MEANING) {
-                // selectedWord가 selectedSentence에 포함되어 있는지 확인
-                if (!isSelectedWordInSentence(quiz)) {
-                    log.warn("퀴즈의 selectedWord가 selectedSentence에 포함되지 않음. 퀴즈 ID: {}", quiz.getQuizId());
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean isAnswerInOptions(Quiz quiz) {
-        switch (quiz.getType()) {
-            case SYNONYM:
-                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
-                        .map(synonymQuiz -> synonymQuiz.getOptions().contains(synonymQuiz.getAnswer()))
-                        .orElse(false);
-            case ANTONYM:
-                return antonymQuizRepository.findById(quiz.getAntonymQuizId())
-                        .map(antonymQuiz -> antonymQuiz.getOptions().contains(antonymQuiz.getAnswer()))
-                        .orElse(false);
-            case MEANING:
-                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
-                        .map(meaningQuiz -> meaningQuiz.getOptions().contains(meaningQuiz.getAnswer()))
-                        .orElse(false);
-        }
-        return false;
-    }
-
-    private boolean isSelectedWordInSentence(Quiz quiz) {
-        switch (quiz.getType()) {
-            case SYNONYM:
-                return synonymQuizRepository.findById(quiz.getSynonymQuizId())
-                        .map(synonymQuiz -> synonymQuiz.getSourceSentence().contains(synonymQuiz.getWord()))
-                        .orElse(false);
-            case ANTONYM:
-                return antonymQuizRepository.findById(quiz.getAntonymQuizId())
-                        .map(antonymQuiz -> antonymQuiz.getSourceSentence().contains(antonymQuiz.getWord()))
-                        .orElse(false);
-            case MEANING:
-                return meaningQuizRepository.findById(quiz.getMeaningQuizId())
-                        .map(meaningQuiz -> meaningQuiz.getSourceSentence().contains(meaningQuiz.getWord()))
-                        .orElse(false);
-        }
-        return false;
-    }
-
-    private void deleteTypeQuiz(List<Quiz> quizzes) {
-        for (Quiz quiz : quizzes) {
-            switch (quiz.getType()) {
-                case SYNONYM:
-                    synonymQuizRepository.deleteById(quiz.getSynonymQuizId());
-                    break;
-                case ANTONYM:
-                    antonymQuizRepository.deleteById(quiz.getAntonymQuizId());
-                    break;
-                case MEANING:
-                    meaningQuizRepository.deleteById(quiz.getMeaningQuizId());
-                    break;
-                case CONTENT:
-                    contentQuizRepository.deleteById(quiz.getContentQuizId());
-                    break;
-            }
-        }
     }
 }

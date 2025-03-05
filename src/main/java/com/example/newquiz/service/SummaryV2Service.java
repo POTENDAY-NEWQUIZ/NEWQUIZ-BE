@@ -34,6 +34,16 @@ public class SummaryV2Service {
         SummaryCreateResponse response = parseSummaryResponse(
                 SummaryCreateClovaRequest.createSummaryClovaRequest(paragraphs));
 
+        if (response == null) {
+            log.info("요약 응답이 null입니다. 다시 요청합니다.");
+            response = parseSummaryResponse(SummaryCreateClovaRequest.createSummaryClovaRequest(paragraphs));
+        }
+
+        if (response == null ||  response.getTotalSummary() == null) {
+            log.error("재요청도 실패");
+            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+        }
+
         // 각 문단에 각 response안의 문단 id에 해당하는 요약 결과를 저장
         for (Paragraph paragraph : paragraphs) {
             String summary = response.getSummaries().stream()
@@ -42,9 +52,17 @@ public class SummaryV2Service {
                     .orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_AI_RESPONSE))
                     .getAiSummary();
 
+            if (summary == null) {
+                log.error("요약 결과가 null입니다.");
+                throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+            }
             paragraph.setSummary(summary);
         }
 
+        if (response.getTotalSummary() == null) {
+            log.error("전체 요약 결과가 null입니다.");
+            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+        }
         news.setTotalSummary(response.getTotalSummary());
     }
 
@@ -58,7 +76,7 @@ public class SummaryV2Service {
             return objectMapper.readValue(clovaUtil.parseContentFromResponse(responseJson), SummaryCreateResponse.class);
         } catch (Exception e) {
             log.error("요약 응답 파싱 실패: {}", e.getMessage());
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
+            return null;
         }
     }
 

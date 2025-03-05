@@ -9,18 +9,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class QuizConverter {
-    public static QuizResponse.QuizListDto toQuizListDto(List<Long> quizIds, int synonymQuizCount, int antonymQuizCount, int meaningQuizCount, int contentQuizCount, List<QuizResponse.SynonymQuizDto> synonymQuizDtoList, List<QuizResponse.MeaningQuizDto> meaningQuizDtoList, List<QuizResponse.ContentQuizDto> contentQuizDtoList, List<QuizResponse.AntonymQuizDto> antonymQuizDtoList) {
+    public static QuizResponse.QuizListDto toQuizListDto(List<Long> quizIds, int synonymQuizCount, int meaningQuizCount, int contentQuizCount, List<QuizResponse.SynonymQuizDto> synonymQuizDtoList, List<QuizResponse.MeaningQuizDto> meaningQuizDtoList, List<QuizResponse.ContentQuizDto> contentQuizDtoList) {
         return QuizResponse.QuizListDto.builder()
-                .totalQuizCount(synonymQuizCount + meaningQuizCount + contentQuizCount + antonymQuizCount)
+                .totalQuizCount(synonymQuizCount + meaningQuizCount + contentQuizCount)
                 .synonymQuizCount(synonymQuizCount)
-                .antonymQuizCount(antonymQuizCount)
                 .meaningQuizCount(meaningQuizCount)
                 .contentQuizCount(contentQuizCount)
                 .quizIdList(quizIds)
                 .synonymQuiz(synonymQuizDtoList)
                 .meaningQuiz(meaningQuizDtoList)
                 .contentQuiz(contentQuizDtoList)
-                .antonymQuiz(antonymQuizDtoList)
                 .build();
     }
 
@@ -42,28 +40,6 @@ public class QuizConverter {
                         .option2(synonymQuiz.getOption2())
                         .option3(synonymQuiz.getOption3())
                         .option4(synonymQuiz.getOption4())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    public static List<QuizResponse.AntonymQuizDto> antonymQuizDtoList(List<AntonymQuiz> antonymQuizList, List<Quiz> quizList) {
-        // Quiz 리스트를 Map으로 변환 (quizId -> paragraphId 매핑)
-        Map<Long, Long> quizParagraphMap = quizList.stream()
-                .collect(Collectors.toMap(Quiz::getQuizId, Quiz::getParagraphId));
-
-        return antonymQuizList.stream()
-                .map(antonymQuiz -> QuizResponse.AntonymQuizDto.builder()
-                        .quizId(antonymQuiz.getQuizId())
-                        .paragraphId(quizParagraphMap.getOrDefault(antonymQuiz.getQuizId(), null)) // paragraphId 매핑
-                        .word(antonymQuiz.getWord())
-                        .sourceSentence(antonymQuiz.getSourceSentence())
-                        .answer(antonymQuiz.getAnswer())
-                        .type(QuizType.ANTONYM.getValue())
-                        .explanation(antonymQuiz.getExplanation())
-                        .option1(antonymQuiz.getOption1())
-                        .option2(antonymQuiz.getOption2())
-                        .option3(antonymQuiz.getOption3())
-                        .option4(antonymQuiz.getOption4())
                         .build())
                 .collect(Collectors.toList());
     }

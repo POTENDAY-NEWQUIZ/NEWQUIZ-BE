@@ -54,37 +54,14 @@ public class NewsCrawlerService {
             for (Element link : newsLinks) {
                 log.info("크롤링 시도 횟수 : {}", i++);
                 String articleUrl = link.attr("href");
-                crawlArticleWithRetry(articleUrl);
+                crawlArticle(articleUrl);
             }
         } catch (Exception e) {
             log.error("❌ 뉴스 크롤링 실패 원인 : {}", e.getMessage());
         }
     }
 
-    /**
-     * 최대 2번까지 크롤링 재시도하는 메서드
-     */
-    private void crawlArticleWithRetry(String url) {
-        int maxRetries = 2;
-        int attempt = 0;
 
-        while (attempt < maxRetries) {
-            try {
-                log.info("📰 기사 크롤링 시도 (시도 횟수: {}/{}) - {}", attempt + 1, maxRetries, url);
-                crawlArticle(url);
-                return; // 성공하면 바로 종료
-            } catch (Exception e) {
-                log.warn("⚠️ 기사 크롤링 실패 ({}회차) - {}, 원인: {}", attempt + 1, url, e.getMessage());
-                attempt++;
-
-                if (attempt >= maxRetries) {
-                    log.error("❌ 최대 재시도 횟수 초과, 크롤링 포기: {}", url);
-                }
-            }
-        }
-    }
-
-    @Transactional
     protected void crawlArticle(String url) {
         try {
             Document doc = Jsoup
@@ -124,7 +101,8 @@ public class NewsCrawlerService {
     /**
      * 뉴스 및 문단 저장
      */
-    private Long saveNewsWithParagraphs(String title, LocalDate date, String source, Element articleElement) {
+    @Transactional
+    protected Long saveNewsWithParagraphs(String title, LocalDate date, String source, Element articleElement) {
         try {
             News news = News.toEntity(title, date, source);
             news = newsRepository.save(news);
@@ -159,38 +137,23 @@ public class NewsCrawlerService {
         }
     }
 
-    /**
-     * 문단별 AI 요약 생성
-     */
-    private void createSummaries(News news) {
-        try {
-            summaryV2Service.saveSummary(news);
-        } catch (Exception e) {
-            log.error("🚨 AI 요약 생성 실패 원인: {}", e.getMessage());
-        }
-    }
-
 
 
     /**
      * AI 분류 및 퀴즈 생성 처리
      */
-    private void handlePostProcessing(Long newsId) {
+    protected void handlePostProcessing(Long newsId) {
         try {
             newsCategorizeService.categorizeNews(newsId);
         } catch (Exception e) {
             log.error("🚨 AI 카테고리 분류 실패 원인: {}", e.getMessage());
-            newsRepository.deleteById(newsId);
-            paragraphRepository.deleteByNewsId(newsId);
             return;
         }
 
         try {
-            createSummaries(newsRepository.findById(newsId).get());
+            summaryV2Service.saveSummary(newsRepository.findById(newsId).get());
         } catch (Exception e) {
             log.error("🚨 AI 요약 생성 실패 원인: {}", e.getMessage());
-            newsRepository.deleteById(newsId);
-            paragraphRepository.deleteByNewsId(newsId);
             return;
         }
 
@@ -198,8 +161,6 @@ public class NewsCrawlerService {
             quizCreateService.createQuiz(newsId);
         } catch (Exception e) {
             log.error("🚨 퀴즈 생성 실패 원인: {}", e.getMessage());
-            newsRepository.deleteById(newsId);
-            paragraphRepository.deleteByNewsId(newsId);
             return;
         }
     }
