@@ -4,6 +4,7 @@ import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.common.util.ClovaUtil;
 import com.example.newquiz.domain.*;
+import com.example.newquiz.dto.converter.SummaryConverter;
 import com.example.newquiz.dto.request.SummaryFeedbackClovaRequest;
 import com.example.newquiz.dto.request.SummaryRequest;
 import com.example.newquiz.dto.response.SummaryResponse;
@@ -33,7 +34,7 @@ public class SummaryService {
     private final HomeService homeService;
 
     @Transactional
-    public SummaryResponse.SummaryDto saveSummary(Long userId, SummaryRequest.SummaryDto summaryDto) {
+    public SummaryResponse.SummaryFeedback saveSummary(Long userId, SummaryRequest.SummaryDto summaryDto) {
         User user = getUserById(userId);
         CompletedNews completedNews = getCompletedNews(userId, summaryDto.getNewsId());
         List<Paragraph> paragraphs = paragraphRepository.findByNewsId(summaryDto.getNewsId());
@@ -57,7 +58,7 @@ public class SummaryService {
         // 평균 점수 업데이트
         updateUserAverageScore(user);
 
-        return response;
+        return SummaryConverter.convertToSummaryFeedback(response, paragraphs);
     }
 
     /**

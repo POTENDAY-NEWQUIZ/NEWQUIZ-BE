@@ -40,11 +40,11 @@ public class NewsController {
     }
 
     @PostMapping("/summary")
-    public ResponseEntity<ApiResponse<SummaryResponse.SummaryDto>> saveSummary(
+    public ResponseEntity<ApiResponse<SummaryResponse.SummaryFeedback>> saveSummary(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody SummaryRequest.SummaryDto summaryDto
     ) {
-        SummaryResponse.SummaryDto response = summaryService.saveSummary(userDetails.getUserId(), summaryDto);
+        SummaryResponse.SummaryFeedback response = summaryService.saveSummary(userDetails.getUserId(), summaryDto);
         return ApiResponse.success(SuccessStatus.SAVE_SUMMARY_SUCCESS, response);
     }
 

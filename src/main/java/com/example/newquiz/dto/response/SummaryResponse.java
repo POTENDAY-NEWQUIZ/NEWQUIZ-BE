@@ -28,4 +28,25 @@ public class SummaryResponse {
         private String improvements;
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SummaryFeedback {
+        private int totalScore;
+        private String generalFeedback;
+        private List<SummaryParagraph> paragraphs;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SummaryParagraph {
+        private Long paragraphId;
+        private String strengths;
+        private String improvements;
+        private String aiSummary;
+    }
+
 }

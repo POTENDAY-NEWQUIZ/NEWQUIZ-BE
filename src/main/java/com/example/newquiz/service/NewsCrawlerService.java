@@ -61,7 +61,7 @@ public class NewsCrawlerService {
         }
     }
 
-
+    @Transactional
     protected void crawlArticle(String url) {
         try {
             Document doc = Jsoup
