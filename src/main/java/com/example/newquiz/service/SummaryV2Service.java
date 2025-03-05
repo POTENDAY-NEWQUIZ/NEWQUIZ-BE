@@ -9,6 +9,7 @@ import com.example.newquiz.dto.request.SummaryCreateClovaRequest;
 import com.example.newquiz.dto.request.SummaryFeedbackClovaRequest;
 import com.example.newquiz.dto.response.SummaryCreateResponse;
 import com.example.newquiz.dto.response.SummaryResponse;
+import com.example.newquiz.repository.NewsRepository;
 import com.example.newquiz.repository.ParagraphRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class SummaryV2Service {
 
     private final ClovaUtil clovaUtil;
     private final ParagraphRepository paragraphRepository;
+    private final NewsRepository newsRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -64,6 +66,7 @@ public class SummaryV2Service {
             throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
         }
         news.setTotalSummary(response.getTotalSummary());
+        newsRepository.save(news);
     }
 
     /**
