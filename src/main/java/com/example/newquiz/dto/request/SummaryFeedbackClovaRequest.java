@@ -33,9 +33,9 @@ public class SummaryFeedbackClovaRequest {
         messages.add(Map.of("role", "system", "content", SYSTEM_CONTENT));
 
         String formattedContent = paragraphs.stream()
-                .map(p -> String.format("[ParagraphId: %d]\n원문: %s\n사용자 요약: %s",
+                .map(p -> String.format("[ParagraphId: %d]\nanswerSummary: %s\nuserSummary: %s",
                         p.getParagraphId(),
-                        p.getContent(),
+                        p.getSummary(),
                         summaryDto.stream()
                                 .filter(s -> s.getParagraphId().equals(p.getParagraphId()))
                                 .map(SummaryRequest.UserSummaryParagraph::getUserSummary)

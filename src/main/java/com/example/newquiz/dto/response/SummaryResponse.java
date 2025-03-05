@@ -24,7 +24,6 @@ public class SummaryResponse {
     @NoArgsConstructor
     public static class AISummaryParagraph {
         private Long paragraphId;
-        private String aiSummary;
         private String strengths;
         private String improvements;
     }
