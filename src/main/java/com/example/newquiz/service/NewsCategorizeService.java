@@ -29,7 +29,6 @@ public class NewsCategorizeService {
     private final ParagraphRepository paragraphRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Transactional
     public void categorizeNews(Long newsId) {
         try {
             // 뉴스 문단 가져오기

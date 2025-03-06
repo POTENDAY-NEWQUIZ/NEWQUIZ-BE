@@ -100,6 +100,7 @@ public class QuizCreateService {
     private QuizCreateResponse getQuizResponse(QuizCreateClovaRequest request) {
         try {
             String responseJson = clovaUtil.postWebClient(request);
+            log.info("퀴즈 응답: {}", responseJson);
             return objectMapper.readValue(clovaUtil.parseContentFromResponse(responseJson), QuizCreateResponse.class);
         } catch (Exception e) {
             log.error("퀴즈 생성 응답 파싱 실패: {}", e.getMessage());
@@ -177,10 +178,16 @@ public class QuizCreateService {
     private boolean isAnswerInOptions(Quiz quiz) {
         switch (quiz.getType()) {
             case SYNONYM:
+                int num = synonymQuizRepository.findById(quiz.getSynonymQuizId()).get().getAnswer();
+                log.info("정답 : {}", synonymQuizRepository.findById(quiz.getSynonymQuizId()).get().getOption(num - 1));
+                log.info("옵션 : {}", synonymQuizRepository.findById(quiz.getSynonymQuizId()).get().getOptions());
                 return synonymQuizRepository.findById(quiz.getSynonymQuizId())
                         .map(synonymQuiz -> synonymQuiz.getOptions().contains(synonymQuiz.getOption(synonymQuiz.getAnswer() - 1)))
                         .orElse(false);
             case MEANING:
+                int num2 = meaningQuizRepository.findById(quiz.getMeaningQuizId()).get().getAnswer();
+                log.info("정답 : {}", meaningQuizRepository.findById(quiz.getMeaningQuizId()).get().getOption(num2 - 1));
+                log.info("옵션 : {}", meaningQuizRepository.findById(quiz.getMeaningQuizId()).get().getOptions());
                 return meaningQuizRepository.findById(quiz.getMeaningQuizId())
                         .map(meaningQuiz -> meaningQuiz.getOptions().contains(meaningQuiz.getOption(meaningQuiz.getAnswer() - 1)))
                         .orElse(false);
@@ -191,12 +198,16 @@ public class QuizCreateService {
     private boolean isSelectedWordInSentence(Quiz quiz) {
         switch (quiz.getType()) {
             case SYNONYM:
+                log.info("단어 : {}", synonymQuizRepository.findById(quiz.getSynonymQuizId()).get().getWord());
+                log.info("문장 : {}", synonymQuizRepository.findById(quiz.getSynonymQuizId()).get().getSourceSentence());
                 return synonymQuizRepository.findById(quiz.getSynonymQuizId())
                         .map(synonymQuiz -> synonymQuiz.getSourceSentence().contains(synonymQuiz.getWord()))
                         .orElse(false);
             case MEANING:
+                log.info("단어 : {}", meaningQuizRepository.findById(quiz.getMeaningQuizId()).get().getWord());
+                log.info("문장 : {}", meaningQuizRepository.findById(quiz.getMeaningQuizId()).get().getSourceSentence());
                 return meaningQuizRepository.findById(quiz.getMeaningQuizId())
-                        .map(meaningQuiz -> meaningQuiz.getSourceSentence().contains(meaningQuiz.getWord()))
+                        .map(meaningQuiz -> meaningQuiz.getSourceSentence().replaceAll(" ", "").contains(meaningQuiz.getWord().replaceAll(" ", "")))
                         .orElse(false);
         }
         return false;

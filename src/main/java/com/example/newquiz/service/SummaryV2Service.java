@@ -29,7 +29,6 @@ public class SummaryV2Service {
     private final NewsRepository newsRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Transactional
     public void saveSummary(News news) {
         List<Paragraph> paragraphs = paragraphRepository.findByNewsId(news.getNewsId());
 
