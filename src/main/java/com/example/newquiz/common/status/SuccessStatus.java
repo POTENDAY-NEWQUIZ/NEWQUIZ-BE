@@ -19,6 +19,9 @@ public enum SuccessStatus implements BaseSuccessStatus {
     CHANGE_NICKNAME_SUCCESS(HttpStatus.OK, 200, "닉네임 변경에 성공했습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK, 200, "로그아웃에 성공했습니다."),
     DELETE_USER_SUCCESS(HttpStatus.NO_CONTENT, 204, "회원 탈퇴에 성공했습니다."),
+    CHANGE_PROFILE_SUCCESS(HttpStatus.OK, 200, "프로필 변경에 성공했습니다."),
+    DELETE_PROFILE_SUCCESS(HttpStatus.NO_CONTENT, 204, "프로필 삭제에 성공했습니다."),
+    USER_STUDY_INFO_SUCCESS(HttpStatus.OK, 200, "나의 학습 정보 조회에 성공했습니다."),
 
     // 토큰 관련 성공
     TOKEN_REISSUE_SUCCESS(HttpStatus.OK, 200, "토큰 재발급에 성공하였습니다."),

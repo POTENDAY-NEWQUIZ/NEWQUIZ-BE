@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -70,5 +73,32 @@ public class UserController {
         userService.deleteUser(customUserDetails.getUserId(), refreshToken);
         return ApiResponse.success(SuccessStatus.DELETE_USER_SUCCESS);
     }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse.ProfileImageDto>> changeProfile(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestPart(value = "profile") MultipartFile profileImage
+    ) throws IOException {
+        UserResponse.ProfileImageDto profileImageDto = userService.changeProfile(customUserDetails.getUserId(), profileImage);
+
+        return ApiResponse.success(SuccessStatus.CHANGE_PROFILE_SUCCESS, profileImageDto);
+    }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse.ProfileImageDto>> deleteProfile(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserResponse.ProfileImageDto profileImageDto = userService.deleteProfile(customUserDetails.getUserId());
+        return ApiResponse.success(SuccessStatus.DELETE_PROFILE_SUCCESS, profileImageDto);
+    }
+
+    @GetMapping("/study")
+    public ResponseEntity<ApiResponse<UserResponse.UserStudyInfoDto>> getUserStudyInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserResponse.UserStudyInfoDto userStudyInfoDto = userService.getUserStudyInfo(customUserDetails.getUserId());
+        return ApiResponse.success(SuccessStatus.USER_STUDY_INFO_SUCCESS,  userStudyInfoDto);
+    }
+
 
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
@@ -31,6 +33,17 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleGlobalException(GeneralException e) {
         log.warn(">>>>>>>>GeneralException: {}", e.getErrorStatus().getMessage());
         return ApiResponse.error(e.getErrorStatus());
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        if (ex instanceof MaxUploadSizeExceededException) {
+            String errorMessage = "이미지 파일이 너무 큽니다. 최대 10MB까지 업로드 가능합니다.";
+            logError("MaxUploadSizeExceededException", errorMessage);
+            return ApiResponse.error(ErrorStatus.PAYLOAD_TOO_LARGE, errorMessage);
+        }
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
 

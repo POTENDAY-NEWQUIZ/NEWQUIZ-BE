@@ -42,6 +42,7 @@ public class UserResponse {
     @AllArgsConstructor
     public static class MyPageDto {
         private String nickname;
+        private String profileImageUrl;
         private Integer userQuizCount;
         private Integer maxLearningDays;
         private Integer learningDays;
@@ -49,4 +50,31 @@ public class UserResponse {
         private double maxAvgScore;
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class ProfileImageDto {
+        private String profileImageUrl;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class UserStudyInfoDto {
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private Integer learningDays;
+        private Integer maxLearningDays;
+        private Integer totalCount;
+        private List<GraphDto> graph;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class GraphDto {
+        private LocalDate date;
+        private String dayOfWeek;
+        private Integer count;
+    }
 }
