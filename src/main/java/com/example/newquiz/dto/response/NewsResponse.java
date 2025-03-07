@@ -14,6 +14,7 @@ public class NewsResponse {
     @AllArgsConstructor
     public static class NewsListDto {
         private String selectedCategory;
+        private String selectedLevel;
         private int newsCount;
         private List<NewsDto> news;
     }
@@ -23,6 +24,7 @@ public class NewsResponse {
     @AllArgsConstructor
     public static class NewsDto {
         private Long newsId;
+        private String level;
         private String title;
         private LocalDate date;
         private String source;
@@ -33,6 +35,7 @@ public class NewsResponse {
     @AllArgsConstructor
     public static class NewsDetailDto {
         private Long newsId;
+        private String totalSummary;
         private String title;
         private LocalDate date;
         private String source;

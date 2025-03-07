@@ -9,13 +9,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class NewsConverter {
-    public static NewsResponse.NewsListDto toNewsListDto(List<News> newsList, String category) {
+    public static NewsResponse.NewsListDto toNewsListDto(List<News> newsList, String category, String level) {
         return NewsResponse.NewsListDto.builder()
                 .selectedCategory(category)
+                .selectedLevel(level)
                 .newsCount(newsList.size())
                 .news(newsList.stream()
                         .map(news -> NewsResponse.NewsDto.builder()
                                 .newsId(news.getNewsId())
+                                .level(news.getLevel())
                                 .title(news.getTitle())
                                 .date(news.getDate())
                                 .source(news.getSource())
@@ -27,6 +29,7 @@ public class NewsConverter {
     public static NewsResponse.NewsDetailDto toNewsDetailDto(News news, List<Paragraph> paragraphs) {
         return NewsResponse.NewsDetailDto.builder()
                 .newsId(news.getNewsId())
+                .totalSummary(news.getTotalSummary())
                 .title(news.getTitle())
                 .date(news.getDate())
                 .source(news.getSource())
