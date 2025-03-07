@@ -33,6 +33,8 @@ public class UserService {
     private final QuizResultRepository quizResultRepository;
     private final ImageUtil imageUtil;
 
+    private final String DEFAULT_IMAGE = "https://newquiz-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile/newquiz-default-profile.jpg";
+
 
     // 회원가입
     @Transactional
@@ -126,6 +128,26 @@ public class UserService {
         String originalProfileImageUrl = user.getProfileImageUrl();
 
         user.setProfileImageUrl(imageUtil.saveFile(profileImage, "profile"));
+        userRepository.save(user);
+
+        // 기존 이미지는 삭제
+        if (!originalProfileImageUrl.equals(DEFAULT_IMAGE)) {
+            imageUtil.deleteImage(originalProfileImageUrl);
+        }
+        return UserResponse.ProfileImageDto.builder().profileImageUrl(user.getProfileImageUrl()).build();
+    }
+
+    // 회원 사진 삭제
+    @Transactional
+    public UserResponse.ProfileImageDto deleteProfile(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+        String originalProfileImageUrl = user.getProfileImageUrl();
+
+        if (DEFAULT_IMAGE.equals(originalProfileImageUrl)) {
+            throw new GeneralException(ErrorStatus.DEFAULT_PROFILE_IMAGE);
+        }
+
+        user.setProfileImageUrl(DEFAULT_IMAGE); // 기본 이미지 URL로 설정
         userRepository.save(user);
 
         // 기존 이미지는 삭제

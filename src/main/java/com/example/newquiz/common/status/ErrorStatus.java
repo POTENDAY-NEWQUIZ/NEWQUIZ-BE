@@ -13,6 +13,7 @@ public enum ErrorStatus implements BaseErrorStatus {
     FORBIDDEN(HttpStatus.FORBIDDEN, 403, "접근 권한이 없습니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, 404, "요청한 자원을 찾을 수 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 405, "허용되지 않은 메소드입니다."),
+    PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, 413, "파일이 너무 큽니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "서버 내부 오류입니다."),
 
     // 토큰 관련 에러
@@ -22,6 +23,7 @@ public enum ErrorStatus implements BaseErrorStatus {
     NOT_FOUND_USER_BY_USERNAME(HttpStatus.NOT_FOUND, 404, "해당하는 닉네임의 사용자를 찾을 수 없습니다."),
     NOT_FOUND_USER_BY_USER_ID(HttpStatus.NOT_FOUND, 404, "해당하는 사용자를 찾을 수 없습니다."),
     ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, 400, "이미 가입된 사용자입니다."),
+    DEFAULT_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, 400, "기본 프로필 이미지는 삭제할 수 없습니다."),
 
     // AI 관련 에러
     AI_CLIENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "AI 서버와의 통신 중 클라이언트 오류가 발생했습니다."),

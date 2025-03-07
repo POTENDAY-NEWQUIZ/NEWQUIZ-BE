@@ -84,4 +84,12 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.CHANGE_PROFILE_SUCCESS, profileImageDto);
     }
 
+    @DeleteMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse.ProfileImageDto>> deleteProfile(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserResponse.ProfileImageDto profileImageDto = userService.deleteProfile(customUserDetails.getUserId());
+        return ApiResponse.success(SuccessStatus.DELETE_PROFILE_SUCCESS, profileImageDto);
+    }
+
 }
