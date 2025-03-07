@@ -18,8 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -156,4 +159,54 @@ public class UserService {
         }
         return UserResponse.ProfileImageDto.builder().profileImageUrl(user.getProfileImageUrl()).build();
     }
+
+    // 학습 정보 조회
+    public UserResponse.UserStudyInfoDto getUserStudyInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+
+        // 연속 학습한 날짜 범위 계산
+        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
+        int learningDays = (calendar == null || calendar.isEmpty()) ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+
+        // 현재 날짜를 기준으로 일주일 동안 각 일마다 CompletedNews 가 true 인 것들 개수 가져오기
+        LocalDate oneWeekAgo = LocalDate.now().minusDays(6);
+        List<Object[]> learningCountList = completedNewsRepository.countByUserIdAndIsCompletedTrueGroupByDate(userId, oneWeekAgo);
+
+        Map<LocalDate, Integer> graphMap = toGraphMap(learningCountList);
+
+        // 7일치 데이터 보정 (중간에 학습 기록이 없는 날짜는 0으로 채움)
+        List<UserResponse.GraphDto> graphData = new ArrayList<>();
+        for (LocalDate date = oneWeekAgo; !date.isAfter(LocalDate.now()); date = date.plusDays(1)) { // 오늘 포함
+            String dayOfWeek = convertDayOfWeek(date.getDayOfWeek().getValue()); // 요일 변환
+            graphData.add(new UserResponse.GraphDto(date, dayOfWeek, graphMap.getOrDefault(date, 0)));
+        }
+
+        int totalCount = graphMap.values().stream().mapToInt(Integer::intValue).sum();
+
+        return UserConverter.toUserStudyInfoDto(user, calendar == null || calendar.isEmpty() ? null : calendar.get(0), calendar == null || calendar.isEmpty() ? null : calendar.get(1), learningDays, totalCount, graphData);
+    }
+
+    private static Map<LocalDate, Integer> toGraphMap(List<Object[]> learningCountList) {
+        return learningCountList.stream()
+                .collect(Collectors.toMap(
+                        result -> ((java.sql.Date) result[0]).toLocalDate(),
+                        result -> ((Number) result[1]).intValue(),
+                        (existing, replacement) -> existing // 중복 방지
+                ));
+    }
+
+    private String convertDayOfWeek(int dayValue) {
+        switch (dayValue) {
+            case 1: return "월";
+            case 2: return "화";
+            case 3: return "수";
+            case 4: return "목";
+            case 5: return "금";
+            case 6: return "토";
+            case 7: return "일";
+            default: return "";
+        }
+    }
+
 }

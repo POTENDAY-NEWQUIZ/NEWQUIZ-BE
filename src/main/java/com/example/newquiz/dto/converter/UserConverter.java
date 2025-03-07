@@ -3,6 +3,10 @@ package com.example.newquiz.dto.converter;
 import com.example.newquiz.domain.User;
 import com.example.newquiz.dto.response.UserResponse;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserConverter {
     public static UserResponse.UserDto toUserDto(Long userId, String nickname, String accessToken, String refreshToken) {
         return UserResponse.UserDto.builder()
@@ -30,4 +34,16 @@ public class UserConverter {
                 .maxAvgScore(user.getMaxAvgScore())
                 .build();
     }
+
+    public static UserResponse.UserStudyInfoDto toUserStudyInfoDto(User user, LocalDate startDate, LocalDate endDate, int learningDays, int totalCount, List<UserResponse.GraphDto> graph) {
+        return UserResponse.UserStudyInfoDto.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .learningDays(learningDays)
+                .maxLearningDays(user.getMaxLearningDays())
+                .totalCount(totalCount)
+                .graph(graph)
+                .build();
+    }
+
 }

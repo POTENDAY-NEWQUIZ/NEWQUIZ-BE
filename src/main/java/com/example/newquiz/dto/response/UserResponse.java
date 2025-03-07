@@ -57,4 +57,24 @@ public class UserResponse {
         private String profileImageUrl;
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class UserStudyInfoDto {
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private Integer learningDays;
+        private Integer maxLearningDays;
+        private Integer totalCount;
+        private List<GraphDto> graph;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class GraphDto {
+        private LocalDate date;
+        private String dayOfWeek;
+        private Integer count;
+    }
 }

@@ -92,4 +92,13 @@ public class UserController {
         return ApiResponse.success(SuccessStatus.DELETE_PROFILE_SUCCESS, profileImageDto);
     }
 
+    @GetMapping("/study")
+    public ResponseEntity<ApiResponse<UserResponse.UserStudyInfoDto>> getUserStudyInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserResponse.UserStudyInfoDto userStudyInfoDto = userService.getUserStudyInfo(customUserDetails.getUserId());
+        return ApiResponse.success(SuccessStatus.USER_STUDY_INFO_SUCCESS,  userStudyInfoDto);
+    }
+
+
 }
