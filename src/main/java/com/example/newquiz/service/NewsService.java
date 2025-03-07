@@ -3,7 +3,6 @@ package com.example.newquiz.service;
 import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.discord.DiscordAlarmSender;
-import com.example.newquiz.discord.DiscordUtil;
 import com.example.newquiz.discord.converter.FeedbackConverter;
 import com.example.newquiz.discord.dto.DiscordDto;
 import com.example.newquiz.domain.*;
@@ -16,9 +15,10 @@ import com.example.newquiz.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,17 +35,12 @@ public class NewsService {
     private final ContentQuizRepository contentQuizRepository;
     private final DiscordAlarmSender discordAlarmSender;
 
-    public NewsResponse.NewsListDto getNewsList(Long userId, String category) {
-        // 이미 퀴즈를 푼 뉴스는 제외
-        List<CompletedNews> completedNews = completedNewsRepository.findByUserId(userId);
+    public NewsResponse.NewsListDto getNewsList(Long userId, String category, String level) {
+        // 해당 뉴스 카테고리와 난이도에 해당하는 뉴스 리스트를 가져옴
+        Pageable pageable = PageRequest.of(0, 20);
+        List<News> newsList = newsRepository.findByLevelAndCategoryOrderByDateDesc(userId, level, NewsCategory.getNewsCategory(category), pageable);
 
-        // 뉴스 카테고리에 해당하는 뉴스 리스트를 가져옴
-        List<News> newsList = newsRepository.findByCategory(NewsCategory.getNewsCategory(category));
-
-        // 이미 퀴즈를 푼 뉴스는 제외
-        newsList.removeIf(news -> completedNews.stream().anyMatch(completed -> completed.getNewsId().equals(news.getNewsId())));
-
-        return NewsConverter.toNewsListDto(newsList, category);
+        return NewsConverter.toNewsListDto(newsList, category, level);
     }
 
     public NewsResponse.NewsDetailDto getNewsDetail(Long newsId) {

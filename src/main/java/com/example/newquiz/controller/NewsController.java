@@ -25,9 +25,10 @@ public class NewsController {
     @GetMapping
     public ResponseEntity<ApiResponse<NewsResponse.NewsListDto>> getNewsList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("category") String category
+            @RequestParam(value = "category", defaultValue = "정치") String category,
+            @RequestParam(value = "level", defaultValue = "상") String level
     ) {
-        NewsResponse.NewsListDto response = newsService.getNewsList(userDetails.getUserId(), category);
+        NewsResponse.NewsListDto response = newsService.getNewsList(userDetails.getUserId(), category, level);
         return ApiResponse.success(SuccessStatus.NEWS_LIST_SUCCESS, response);
     }
 
