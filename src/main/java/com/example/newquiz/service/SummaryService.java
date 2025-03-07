@@ -31,7 +31,7 @@ public class SummaryService {
     private final UserRepository userRepository;
     private final RankingRepository rankingRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final HomeService homeService;
+    private final UserService userService;
 
     @Transactional
     public SummaryResponse.SummaryFeedback saveSummary(Long userId, SummaryRequest.SummaryDto summaryDto) {
@@ -51,8 +51,8 @@ public class SummaryService {
         updateRanking(userId, response.getTotalScore(), quizScore);
 
         // 연속 학습 일수 계산 및 저장
-        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
-        int learningDays = calendar == null ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+        List<LocalDate> calendar = userService.calculateConsecutiveLearningDays(userId);
+        int learningDays = calendar == null ? 0 : userService.calculateLearningDays(calendar.get(0), calendar.get(1));
         updateUserLearningStreak(user, learningDays);
 
         // 평균 점수 업데이트

@@ -4,6 +4,7 @@ import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
 import com.example.newquiz.common.util.ImageUtil;
 import com.example.newquiz.common.util.JwtUtil;
+import com.example.newquiz.domain.CompletedNews;
 import com.example.newquiz.domain.Ranking;
 import com.example.newquiz.domain.RefreshToken;
 import com.example.newquiz.domain.User;
@@ -18,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +29,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RankingRepository rankingRepository;
-    private final HomeService homeService;
     private final CompletedNewsRepository completedNewsRepository;
     private final QuizResultRepository quizResultRepository;
     private final ImageUtil imageUtil;
@@ -91,8 +88,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
 
-        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
-        int learningDays = calendar == null ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+        List<LocalDate> calendar = calculateConsecutiveLearningDays(userId);
+        int learningDays = calendar == null ? 0 : calculateLearningDays(calendar.get(0), calendar.get(1));
         int userQuizCount = completedNewsRepository.countByUserIdAndIsCompletedTrue(userId);
 
         return UserConverter.toMyPageDto(user, learningDays, userQuizCount);
@@ -166,8 +163,8 @@ public class UserService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
 
         // 연속 학습한 날짜 범위 계산
-        List<LocalDate> calendar = homeService.calculateConsecutiveLearningDays(userId);
-        int learningDays = (calendar == null || calendar.isEmpty()) ? 0 : homeService.calculateLearningDays(calendar.get(0), calendar.get(1));
+        List<LocalDate> calendar = calculateConsecutiveLearningDays(userId);
+        int learningDays = (calendar == null || calendar.isEmpty()) ? 0 : calculateLearningDays(calendar.get(0), calendar.get(1));
 
         // 현재 날짜를 기준으로 일주일 동안 각 일마다 CompletedNews 가 true 인 것들 개수 가져오기
         LocalDate oneWeekAgo = LocalDate.now().minusDays(6);
@@ -207,6 +204,62 @@ public class UserService {
             case 7: return "일";
             default: return "";
         }
+    }
+
+    /**
+     * 연속 학습한 날짜 범위를 계산
+     */
+    public List<LocalDate> calculateConsecutiveLearningDays(Long userId) {
+        List<CompletedNews> completedNewsList = completedNewsRepository.findByUserIdAndIsCompletedTrueOrderByUpdatedAtDesc(userId);
+
+        if (completedNewsList.isEmpty()) {
+            return null; // 학습 기록이 없으면 null 반환
+        }
+
+        // 가장 최신 학습일을 추출
+        LocalDate latestLearningDate = completedNewsList.get(0).getUpdatedAt().toLocalDate();
+
+        // 최신 학습일이 오늘 또는 어제가 아닌 경우 연속 학습 일수 계산을 하지 않음
+        LocalDate today = LocalDate.now();
+        if (!latestLearningDate.equals(today) && !latestLearningDate.equals(today.minusDays(1))) {
+            return null;
+        }
+
+        // 날짜만 추출하여 정렬된 리스트 생성
+        List<LocalDate> dates = completedNewsList.stream()
+                .map(news -> news.getUpdatedAt().toLocalDate())
+                .distinct() // 중복 제거
+                .sorted(Comparator.reverseOrder()) // 최신 날짜부터 정렬
+                .toList();
+
+        LocalDate startDate;
+        LocalDate endDate;
+
+        // 오늘 학습한 기록이 있는지 확인
+        boolean hasTodayRecord = dates.contains(today);
+
+        if (hasTodayRecord) {
+            endDate = today; // 오늘 학습했으면 오늘을 기준으로
+        } else {
+            endDate = today.minusDays(1); // 오늘 학습 안 했으면 어제를 기준으로
+        }
+
+        startDate = endDate;
+
+        // 연속된 날짜를 찾기
+        for (LocalDate date : dates) {
+            if (date.equals(startDate) || date.equals(startDate.minusDays(1))) {
+                startDate = date; // 연속 학습일 업데이트
+            } else {
+                break; // 연속되지 않는 날짜가 나오면 종료
+            }
+        }
+
+        return List.of(startDate, endDate);
+    }
+
+    public int calculateLearningDays(LocalDate startDate, LocalDate endDate) {
+        return (int) startDate.until(endDate).getDays() + 1;
     }
 
 }
