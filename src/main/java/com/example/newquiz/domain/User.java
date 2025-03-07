@@ -42,6 +42,10 @@ public class User extends BaseEntity {
     @Column(name = "avg_score")
     private Double avgScore;
 
+    @Setter
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @Builder
     public static User toEntity(String providerId, String nickName, LocalDate birth) {
         return User.builder()

@@ -42,11 +42,19 @@ public class UserResponse {
     @AllArgsConstructor
     public static class MyPageDto {
         private String nickname;
+        private String profileImageUrl;
         private Integer userQuizCount;
         private Integer maxLearningDays;
         private Integer learningDays;
         private double avgScore;
         private double maxAvgScore;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class ProfileImageDto {
+        private String profileImageUrl;
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.newquiz.service;
 
 import com.example.newquiz.common.exception.GeneralException;
 import com.example.newquiz.common.status.ErrorStatus;
+import com.example.newquiz.common.util.ImageUtil;
 import com.example.newquiz.common.util.JwtUtil;
 import com.example.newquiz.domain.Ranking;
 import com.example.newquiz.domain.RefreshToken;
@@ -13,7 +14,9 @@ import com.example.newquiz.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +31,7 @@ public class UserService {
     private final HomeService homeService;
     private final CompletedNewsRepository completedNewsRepository;
     private final QuizResultRepository quizResultRepository;
+    private final ImageUtil imageUtil;
 
 
     // 회원가입
@@ -113,5 +117,21 @@ public class UserService {
         completedNewsRepository.deleteByUserId(userId);
         quizResultRepository.deleteByUserId(userId);
         rankingRepository.deleteByUserId(userId);
+    }
+
+    // 회원 사진 변경
+    @Transactional
+    public UserResponse.ProfileImageDto changeProfile(Long userId, MultipartFile profileImage) throws IOException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER_BY_USER_ID));
+        String originalProfileImageUrl = user.getProfileImageUrl();
+
+        user.setProfileImageUrl(imageUtil.saveFile(profileImage, "profile"));
+        userRepository.save(user);
+
+        // 기존 이미지는 삭제
+        if (originalProfileImageUrl != null) {
+            imageUtil.deleteImage(originalProfileImageUrl);
+        }
+        return UserResponse.ProfileImageDto.builder().profileImageUrl(user.getProfileImageUrl()).build();
     }
 }

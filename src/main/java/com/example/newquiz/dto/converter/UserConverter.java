@@ -22,6 +22,7 @@ public class UserConverter {
     public static UserResponse.MyPageDto toMyPageDto(User user, int learningDays, int userQuizCount) {
         return UserResponse.MyPageDto.builder()
                 .nickname(user.getNickName())
+                .profileImageUrl(user.getProfileImageUrl())
                 .maxLearningDays(user.getMaxLearningDays())
                 .userQuizCount(userQuizCount)
                 .learningDays(learningDays)

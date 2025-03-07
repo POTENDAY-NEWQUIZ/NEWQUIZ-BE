@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -69,6 +72,16 @@ public class UserController {
     ) {
         userService.deleteUser(customUserDetails.getUserId(), refreshToken);
         return ApiResponse.success(SuccessStatus.DELETE_USER_SUCCESS);
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse.ProfileImageDto>> changeProfile(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestPart(value = "profile") MultipartFile profileImage
+    ) throws IOException {
+        UserResponse.ProfileImageDto profileImageDto = userService.changeProfile(customUserDetails.getUserId(), profileImage);
+
+        return ApiResponse.success(SuccessStatus.CHANGE_PROFILE_SUCCESS, profileImageDto);
     }
 
 }
