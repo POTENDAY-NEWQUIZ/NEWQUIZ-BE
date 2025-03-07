@@ -55,6 +55,7 @@ public class User extends BaseEntity {
                 .avgScore(0.0)
                 .maxAvgScore(0.0)
                 .maxLearningDays(0)
+                .profileImageUrl("https://newquiz-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile/newquiz-default-profile.jpg")
                 .build();
     }
 }
