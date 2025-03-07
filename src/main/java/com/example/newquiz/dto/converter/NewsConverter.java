@@ -29,6 +29,7 @@ public class NewsConverter {
     public static NewsResponse.NewsDetailDto toNewsDetailDto(News news, List<Paragraph> paragraphs) {
         return NewsResponse.NewsDetailDto.builder()
                 .newsId(news.getNewsId())
+                .totalSummary(news.getTotalSummary())
                 .title(news.getTitle())
                 .date(news.getDate())
                 .source(news.getSource())

@@ -35,6 +35,7 @@ public class NewsResponse {
     @AllArgsConstructor
     public static class NewsDetailDto {
         private Long newsId;
+        private String totalSummary;
         private String title;
         private LocalDate date;
         private String source;
