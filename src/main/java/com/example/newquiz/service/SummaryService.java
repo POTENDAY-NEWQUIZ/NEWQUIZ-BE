@@ -45,6 +45,7 @@ public class SummaryService {
         );
         completedNews.setSummaryScore(response.getTotalScore());
         completedNews.setIsCompleted(true);
+        completedNewsRepository.save(completedNews);
 
         // 퀴즈 점수 계산 후 랭킹 반영
         int quizScore = calculateQuizScore(userId, summaryDto.getNewsId());
@@ -96,6 +97,7 @@ public class SummaryService {
     private void updateRanking(Long userId, int summaryScore, int quizScore) {
         Ranking ranking = rankingRepository.findByUserId(userId);
         ranking.setScore(ranking.getScore() + summaryScore + quizScore);
+        rankingRepository.save(ranking);
     }
 
     /**
@@ -104,6 +106,7 @@ public class SummaryService {
     private void updateUserLearningStreak(User user, int consecutiveDays) {
         if (user.getMaxLearningDays() == null || consecutiveDays > user.getMaxLearningDays()) {
             user.setMaxLearningDays(consecutiveDays);
+            userRepository.save(user);
         }
     }
 
@@ -124,6 +127,7 @@ public class SummaryService {
             user.setAvgScore(avgScore);
             if (user.getMaxAvgScore() == null || avgScore > user.getMaxAvgScore()) {
                 user.setMaxAvgScore(avgScore);
+                userRepository.save(user);
             }
         }
     }

@@ -234,6 +234,7 @@ public class QuizCreateService {
                                 .build()
                 );
                 quiz.setSynonymQuizId(synonymQuiz.getSynonymQuizId());
+                quizRepository.save(quiz);
                 break;
 
             case MEANING:
@@ -252,6 +253,7 @@ public class QuizCreateService {
                                 .build()
                 );
                 quiz.setMeaningQuizId(meaningQuiz.getMeaningQuizId());
+                quizRepository.save(quiz);
                 break;
 
             case CONTENT:
@@ -264,6 +266,7 @@ public class QuizCreateService {
                                 .build()
                 );
                 quiz.setContentQuizId(contentQuiz.getContentQuizId());
+                quizRepository.save(quiz);
                 break;
         }
     }

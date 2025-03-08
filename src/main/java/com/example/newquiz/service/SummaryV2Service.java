@@ -29,6 +29,7 @@ public class SummaryV2Service {
     private final NewsRepository newsRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Transactional
     public void saveSummary(News news) {
         List<Paragraph> paragraphs = paragraphRepository.findByNewsId(news.getNewsId());
 
@@ -58,6 +59,7 @@ public class SummaryV2Service {
                 throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
             }
             paragraph.setSummary(summary);
+            paragraphRepository.save(paragraph);
         }
 
         if (response.getTotalSummary() == null) {
