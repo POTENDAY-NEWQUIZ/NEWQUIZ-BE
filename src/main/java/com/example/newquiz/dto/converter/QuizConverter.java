@@ -79,4 +79,47 @@ public class QuizConverter {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public static QuizResponse.SynonymQuizDto toSynonymQuizDto(SynonymQuiz synonymQuiz, Quiz quiz) {
+        return QuizResponse.SynonymQuizDto.builder()
+                .quizId(synonymQuiz.getQuizId())
+                .paragraphId(quiz.getParagraphId())
+                .word(synonymQuiz.getWord())
+                .sourceSentence(synonymQuiz.getSourceSentence())
+                .answer(synonymQuiz.getAnswer())
+                .type(QuizType.SYNONYM.getValue())
+                .explanation(synonymQuiz.getExplanation())
+                .option1(synonymQuiz.getOption1())
+                .option2(synonymQuiz.getOption2())
+                .option3(synonymQuiz.getOption3())
+                .option4(synonymQuiz.getOption4())
+                .build();
+    }
+
+    public static QuizResponse.MeaningQuizDto toMeaningQuizDto(MeaningQuiz meaningQuiz, Quiz quiz) {
+        return QuizResponse.MeaningQuizDto.builder()
+                .quizId(meaningQuiz.getQuizId())
+                .paragraphId(quiz.getParagraphId())
+                .word(meaningQuiz.getWord())
+                .sourceSentence(meaningQuiz.getSourceSentence())
+                .answer(meaningQuiz.getAnswer())
+                .type(QuizType.MEANING.getValue())
+                .explanation(meaningQuiz.getExplanation())
+                .option1(meaningQuiz.getOption1())
+                .option2(meaningQuiz.getOption2())
+                .option3(meaningQuiz.getOption3())
+                .option4(meaningQuiz.getOption4())
+                .build();
+    }
+
+    public static QuizResponse.ContentQuizDto toContentQuizDto(ContentQuiz contentQuiz, Quiz quiz) {
+        return QuizResponse.ContentQuizDto.builder()
+                .quizId(contentQuiz.getQuizId())
+                .paragraphId(quiz.getParagraphId())
+                .answer(contentQuiz.getAnswer())
+                .question(contentQuiz.getQuestion())
+                .explanation(contentQuiz.getExplanation())
+                .type(QuizType.CONTENT.getValue())
+                .build();
+    }
 }

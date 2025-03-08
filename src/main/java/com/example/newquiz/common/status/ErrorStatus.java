@@ -38,6 +38,8 @@ public enum ErrorStatus implements BaseErrorStatus {
     NOT_FOUND_QUIZ(HttpStatus.NOT_FOUND, 404, "해당하는 뉴스에 대한 퀴즈가 없습니다."),
     ALREADY_COMPLETED_QUIZ(HttpStatus.BAD_REQUEST, 400, "이미 퀴즈를 완료한 뉴스입니다."),
     NOT_FOUND_COMPLETED_NEWS(HttpStatus.NOT_FOUND, 404, "해당하는 뉴스에 대한 퀴즈 결과가 없습니다."),
+    QUIZ_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당하는 퀴즈 결과를 찾을 수 없습니다."),
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당하는 퀴즈를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
