@@ -37,6 +37,8 @@ public enum SuccessStatus implements BaseSuccessStatus {
     GET_QUIZ_INFO_SUCCESS(HttpStatus.OK, 200, "퀴즈를 성공적으로 조회했습니다."),
     SAVE_QUIZ_RESULT_SUCCESS(HttpStatus.CREATED, 201, "퀴즈 정답 제출 성공입니다."),
     NOTE_LIST_SUCCESS(HttpStatus.OK, 200, "오답 노트 목록 조회 성공입니다."),
+    NOTE_DETAIL_SUCCESS(HttpStatus.OK, 200, "오답 노트 상세 조회 성공입니다."),
+    SEND_NOTE_RESULT_SUCCESS(HttpStatus.CREATED, 201, "오답 노트 결과 제출 성공입니다."),
 
     // 랭킹 관련 성공
     RANKING_GET_SUCCESS(HttpStatus.OK, 200, "랭킹 조회 성공입니다."),

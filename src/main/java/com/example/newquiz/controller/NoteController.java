@@ -6,13 +6,11 @@ import com.example.newquiz.common.status.SuccessStatus;
 import com.example.newquiz.domain.enums.QuizType;
 import com.example.newquiz.dto.response.NoteResponse;
 import com.example.newquiz.service.NoteService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,5 +25,23 @@ public class NoteController {
     ) {
         NoteResponse.NoteListDto response = noteService.getNoteList(userDetails.getUserId(), QuizType.getQuizType(type));
         return ApiResponse.success(SuccessStatus.NOTE_LIST_SUCCESS, response);
+    }
+
+    @GetMapping("/{quizResultId}")
+    public ResponseEntity<ApiResponse<NoteResponse.NoteDetailDto>> getNoteDetail(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long quizResultId
+    ) {
+        NoteResponse.NoteDetailDto response = noteService.getNoteDetail(userDetails.getUserId(), quizResultId);
+        return ApiResponse.success(SuccessStatus.NOTE_DETAIL_SUCCESS, response);
+    }
+
+    @PostMapping("/{quizResultId}")
+    public ResponseEntity<ApiResponse<String>> sendNoteResult(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long quizResultId
+    ) {
+        noteService.sendNoteResult(userDetails.getUserId(), quizResultId);
+        return ApiResponse.success(SuccessStatus.SEND_NOTE_RESULT_SUCCESS);
     }
 }
