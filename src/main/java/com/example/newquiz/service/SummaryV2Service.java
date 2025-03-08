@@ -43,6 +43,8 @@ public class SummaryV2Service {
 
         if (response == null ||  response.getTotalSummary() == null) {
             log.error("재요청도 실패");
+            newsRepository.delete(news);
+            paragraphRepository.deleteAll(paragraphs);
             throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
         }
 
@@ -56,16 +58,14 @@ public class SummaryV2Service {
 
             if (summary == null) {
                 log.error("요약 결과가 null입니다.");
+                newsRepository.delete(news);
+                paragraphRepository.deleteAll(paragraphs);
                 throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
             }
             paragraph.setSummary(summary);
             paragraphRepository.save(paragraph);
         }
 
-        if (response.getTotalSummary() == null) {
-            log.error("전체 요약 결과가 null입니다.");
-            throw new GeneralException(ErrorStatus.INVALID_AI_RESPONSE);
-        }
         news.setTotalSummary(response.getTotalSummary());
         newsRepository.save(news);
     }
