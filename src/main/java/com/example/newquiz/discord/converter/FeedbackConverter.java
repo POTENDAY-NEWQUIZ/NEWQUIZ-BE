@@ -2,6 +2,7 @@ package com.example.newquiz.discord.converter;
 
 import com.example.newquiz.discord.dto.DiscordDto;
 import com.example.newquiz.domain.*;
+import com.example.newquiz.dto.request.FeedbackRequest;
 import com.example.newquiz.dto.request.LevelFeedbackRequest;
 
 import java.util.List;
@@ -60,6 +61,20 @@ public class FeedbackConverter {
                 .question(contentQuiz.getQuestion())
                 .answer(contentQuiz.getAnswer())
                 .sourceParagraphId(quiz.getParagraphId())
+                .build();
+    }
+
+    public static DiscordDto.FeedbackDiscordDto toFeedbackDiscordDto(News news, Paragraph paragraph, FeedbackRequest.FeedbackDto feedbackDto) {
+        return DiscordDto.FeedbackDiscordDto.builder()
+                .content(feedbackDto.getContent())
+                .newsId(news.getNewsId())
+                .newsTitle(news.getTitle())
+                .paragraphId(paragraph.getParagraphId())
+                .paragraphContent(paragraph.getContent())
+                .userSummary(feedbackDto.getUserSummary())
+                .aiSummary(feedbackDto.getAiSummary())
+                .strength(feedbackDto.getStrength())
+                .improvement(feedbackDto.getImprovement())
                 .build();
     }
 }

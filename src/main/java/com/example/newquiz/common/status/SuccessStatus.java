@@ -42,6 +42,9 @@ public enum SuccessStatus implements BaseSuccessStatus {
 
     // 랭킹 관련 성공
     RANKING_GET_SUCCESS(HttpStatus.OK, 200, "랭킹 조회 성공입니다."),
+
+    // 피드백 관련 성공
+    SEND_FEEDBACK_SUCCESS(HttpStatus.CREATED, 201, "피드백 제출 성공입니다."),
     ;
 
     private final HttpStatus httpStatus;
