@@ -35,4 +35,13 @@ public class NoteController {
         NoteResponse.NoteDetailDto response = noteService.getNoteDetail(userDetails.getUserId(), quizResultId);
         return ApiResponse.success(SuccessStatus.NOTE_DETAIL_SUCCESS, response);
     }
+
+    @PostMapping("/{quizResultId}")
+    public ResponseEntity<ApiResponse<String>> sendNoteResult(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long quizResultId
+    ) {
+        noteService.sendNoteResult(userDetails.getUserId(), quizResultId);
+        return ApiResponse.success(SuccessStatus.SEND_NOTE_RESULT_SUCCESS);
+    }
 }

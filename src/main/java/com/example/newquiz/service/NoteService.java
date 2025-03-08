@@ -68,6 +68,12 @@ public class NoteService {
             default:
                 throw new GeneralException(ErrorStatus.BAD_REQUEST);
         }
+    }
 
+    public void sendNoteResult(Long userId, Long quizResultId) {
+        QuizResult quizResult = quizResultRepository.findByUserIdAndQuizResultId(userId, quizResultId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.QUIZ_RESULT_NOT_FOUND));
+        quizResult.setIsChecked(true);
+        quizResultRepository.save(quizResult);
     }
 }
