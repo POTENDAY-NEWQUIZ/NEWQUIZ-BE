@@ -17,4 +17,11 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     List<News> findByLevelAndCategoryOrderByDateDesc(
             Long userId, String level, NewsCategory category, Pageable pageable);
 
+    @Query("SELECT n FROM News n " +
+            "LEFT JOIN CompletedNews cn ON n.newsId = cn.newsId AND cn.userId = :userId " +
+            "WHERE n.category = :category " +
+            "AND (cn.isCompleted IS NULL OR cn.isCompleted = false) " +
+            "ORDER BY n.date DESC")
+    List<News> findByCategoryOrderByDateDesc(Long userId, NewsCategory category, Pageable pageable);
+
 }

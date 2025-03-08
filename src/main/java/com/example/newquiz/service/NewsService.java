@@ -38,6 +38,13 @@ public class NewsService {
     public NewsResponse.NewsListDto getNewsList(Long userId, String category, String level) {
         // 해당 뉴스 카테고리와 난이도에 해당하는 뉴스 리스트를 가져옴
         Pageable pageable = PageRequest.of(0, 20);
+
+        // 난이도 선택이 전체일 경우
+        if (level.equals("전체")) {
+            List<News> newsList = newsRepository.findByCategoryOrderByDateDesc(userId, NewsCategory.getNewsCategory(category), pageable);
+            return NewsConverter.toNewsListDto(newsList, category, level);
+        }
+
         List<News> newsList = newsRepository.findByLevelAndCategoryOrderByDateDesc(userId, level, NewsCategory.getNewsCategory(category), pageable);
 
         return NewsConverter.toNewsListDto(newsList, category, level);
