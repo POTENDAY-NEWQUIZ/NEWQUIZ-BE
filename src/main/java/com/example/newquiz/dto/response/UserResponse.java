@@ -61,6 +61,7 @@ public class UserResponse {
     @Builder
     @AllArgsConstructor
     public static class UserStudyInfoDto {
+        private String nickName;
         private LocalDate startDate;
         private LocalDate endDate;
         private Integer learningDays;

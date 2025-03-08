@@ -37,6 +37,7 @@ public class UserConverter {
 
     public static UserResponse.UserStudyInfoDto toUserStudyInfoDto(User user, LocalDate startDate, LocalDate endDate, int learningDays, int totalCount, List<UserResponse.GraphDto> graph) {
         return UserResponse.UserStudyInfoDto.builder()
+                .nickName(user.getNickName())
                 .startDate(startDate)
                 .endDate(endDate)
                 .learningDays(learningDays)
