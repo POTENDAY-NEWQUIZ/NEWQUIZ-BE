@@ -32,4 +32,16 @@ public class DiscordAlarmSender {
                     .block();
         }
     }
+
+    public void sendAIFeedbackDiscordAlarm(DiscordDto.FeedbackDiscordDto feedbackDto) {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
+            webClient.post()
+                    .uri(feedbackWebHookUrl)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(discordUtil.createAIFeedbackMessage(feedbackDto))
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+        }
+    }
 }

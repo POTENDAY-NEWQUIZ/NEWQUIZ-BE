@@ -10,6 +10,48 @@ import java.util.stream.Collectors;
 public class DiscordUtil {
 
     /**
+     * AI Feedback 정보를 Discord 메시지로 변환
+     */
+    public DiscordDto.MessageDto createAIFeedbackMessage(DiscordDto.FeedbackDiscordDto aiFeedbackDto) {
+        return DiscordDto.MessageDto.builder()
+                .content("# 📚 AI 불만족 피드백 🚨")
+                .embeds(List.of(
+                        DiscordDto.EmbedDto.builder()
+                                        .title("🚨 피드백 내용")
+                                        .description(aiFeedbackDto.getContent())
+                                        .build(),
+                        DiscordDto.EmbedDto.builder()
+                                .title("📰 뉴스 정보")
+                                .description(
+                                        "**뉴스 ID:** " + aiFeedbackDto.getNewsId() + "\n" +
+                                        "**뉴스 제목:** " + aiFeedbackDto.getNewsTitle() + "\n"
+                                )
+                                .build(),
+                        DiscordDto.EmbedDto.builder()
+                                .title("📖 문단 정보")
+                                .description(
+                                        "**문단 ID:** " + aiFeedbackDto.getParagraphId() + "\n" +
+                                        "**문단 내용:** " + aiFeedbackDto.getParagraphContent() + "\n"
+                                )
+                                .build(),
+                        DiscordDto.EmbedDto.builder()
+                                .title("🙋 사용자 입력")
+                                .description(
+                                        "**사용자 요약:** " + aiFeedbackDto.getUserSummary()
+                                )
+                                .build(),
+                        DiscordDto.EmbedDto.builder()
+                                .title("🤖 AI 피드백")
+                                .description(
+                                        "**AI 요약:** " + aiFeedbackDto.getAiSummary() + "\n" +
+                                                "**잘한점:** " + aiFeedbackDto.getStrength() + "\n" +
+                                                "**보완할점:** " + aiFeedbackDto.getImprovement()
+                                )
+                                .build()
+                )).build();
+    }
+
+    /**
      * Level Feedback 정보를 Discord 메시지로 변환
      */
     public DiscordDto.MessageDto createLevelFeedbackMessage(DiscordDto.LevelFeedbackDiscordDto feedbackDto) {

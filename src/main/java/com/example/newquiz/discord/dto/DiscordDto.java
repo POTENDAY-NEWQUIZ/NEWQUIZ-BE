@@ -37,6 +37,22 @@ public class DiscordDto {
     @Builder
     @Getter
     @AllArgsConstructor
+    public static class FeedbackDiscordDto {
+        private String content;
+        private Long newsId;
+        private String newsTitle;
+        private Long paragraphId;
+        private String paragraphContent;
+        private String userSummary;
+        private String aiSummary;
+        private String strength;
+        private String improvement;
+    }
+
+    @Data
+    @Builder
+    @Getter
+    @AllArgsConstructor
     public static class LevelFeedbackDiscordDto {
         private Long newsId;
         private String newsTitle;
