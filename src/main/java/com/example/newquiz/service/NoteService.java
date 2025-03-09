@@ -51,17 +51,17 @@ public class NoteService {
 
         switch (resultQuiz.getType()) {
             case SYNONYM:
-                SynonymQuiz synonymQuiz = synonymQuizRepository.findById(resultQuiz.getQuizId())
+                SynonymQuiz synonymQuiz = synonymQuizRepository.findById(resultQuiz.getSynonymQuizId())
                         .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
                 QuizResponse.SynonymQuizDto synonymQuizDto = QuizConverter.toSynonymQuizDto(synonymQuiz, resultQuiz);
                 return new NoteResponse.NoteDetailDto(quizResult.getQuizResultId(), newsDetailDto, synonymQuizDto, null, null);
             case MEANING:
-                MeaningQuiz meaningQuiz = meaningQuizRepository.findById(resultQuiz.getQuizId())
+                MeaningQuiz meaningQuiz = meaningQuizRepository.findById(resultQuiz.getMeaningQuizId())
                         .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
                 QuizResponse.MeaningQuizDto meaningQuizDto = QuizConverter.toMeaningQuizDto(meaningQuiz, resultQuiz);
                 return new NoteResponse.NoteDetailDto(quizResult.getQuizResultId(), newsDetailDto, null, meaningQuizDto, null);
             case CONTENT:
-                ContentQuiz contentQuiz = contentQuizRepository.findById(resultQuiz.getQuizId())
+                ContentQuiz contentQuiz = contentQuizRepository.findById(resultQuiz.getContentQuizId())
                         .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
                 QuizResponse.ContentQuizDto contentQuizDto = QuizConverter.toContentQuizDto(contentQuiz, resultQuiz);
                 return new NoteResponse.NoteDetailDto(quizResult.getQuizResultId(), newsDetailDto, null, null, contentQuizDto);
