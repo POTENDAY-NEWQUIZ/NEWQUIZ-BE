@@ -10,17 +10,16 @@ import java.util.List;
 
 public interface NewsRepository extends JpaRepository<News, Long> {
     @Query("SELECT n FROM News n " +
-            "LEFT JOIN CompletedNews cn ON n.newsId = cn.newsId AND cn.userId = :userId " +
-            "WHERE n.level = :level AND n.category = :category " +
-            "AND (cn.isCompleted IS NULL OR cn.isCompleted = false) " +
+            "WHERE n.level = :level " +
+            "AND n.category = :category " +
+            "AND NOT EXISTS (SELECT 1 FROM CompletedNews cn WHERE cn.newsId = n.newsId AND cn.userId = :userId) " +
             "ORDER BY n.date DESC")
     List<News> findByLevelAndCategoryOrderByDateDesc(
             Long userId, String level, NewsCategory category, Pageable pageable);
 
     @Query("SELECT n FROM News n " +
-            "LEFT JOIN CompletedNews cn ON n.newsId = cn.newsId AND cn.userId = :userId " +
             "WHERE n.category = :category " +
-            "AND (cn.isCompleted IS NULL OR cn.isCompleted = false) " +
+            "AND NOT EXISTS (SELECT 1 FROM CompletedNews cn WHERE cn.newsId = n.newsId AND cn.userId = :userId) " +
             "ORDER BY n.date DESC")
     List<News> findByCategoryOrderByDateDesc(Long userId, NewsCategory category, Pageable pageable);
 

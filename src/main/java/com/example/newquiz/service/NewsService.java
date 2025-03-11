@@ -46,7 +46,6 @@ public class NewsService {
         }
 
         List<News> newsList = newsRepository.findByLevelAndCategoryOrderByDateDesc(userId, level, NewsCategory.getNewsCategory(category), pageable);
-
         return NewsConverter.toNewsListDto(newsList, category, level);
     }
 
