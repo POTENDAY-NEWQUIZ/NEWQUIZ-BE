@@ -66,6 +66,9 @@ public class UserResponse {
         private LocalDate endDate;
         private Integer learningDays;
         private Integer maxLearningDays;
+        private Integer userQuizCount;
+        private double avgScore;
+        private double maxAvgScore;
         private Integer totalCount;
         private List<GraphDto> graph;
     }

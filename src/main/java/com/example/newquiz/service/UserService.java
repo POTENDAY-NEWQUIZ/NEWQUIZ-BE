@@ -180,8 +180,9 @@ public class UserService {
         }
 
         int totalCount = graphMap.values().stream().mapToInt(Integer::intValue).sum();
+        int userQuizCount = completedNewsRepository.countByUserIdAndIsCompletedTrue(userId);
 
-        return UserConverter.toUserStudyInfoDto(user, calendar == null || calendar.isEmpty() ? null : calendar.get(0), calendar == null || calendar.isEmpty() ? null : calendar.get(1), learningDays, totalCount, graphData);
+        return UserConverter.toUserStudyInfoDto(user, userQuizCount, calendar == null || calendar.isEmpty() ? null : calendar.get(0), calendar == null || calendar.isEmpty() ? null : calendar.get(1), learningDays, totalCount, graphData);
     }
 
     private static Map<LocalDate, Integer> toGraphMap(List<Object[]> learningCountList) {

@@ -35,13 +35,16 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponse.UserStudyInfoDto toUserStudyInfoDto(User user, LocalDate startDate, LocalDate endDate, int learningDays, int totalCount, List<UserResponse.GraphDto> graph) {
+    public static UserResponse.UserStudyInfoDto toUserStudyInfoDto(User user, int userQuizCount, LocalDate startDate, LocalDate endDate, int learningDays, int totalCount, List<UserResponse.GraphDto> graph) {
         return UserResponse.UserStudyInfoDto.builder()
                 .nickName(user.getNickName())
                 .startDate(startDate)
                 .endDate(endDate)
                 .learningDays(learningDays)
                 .maxLearningDays(user.getMaxLearningDays())
+                .userQuizCount(userQuizCount)
+                .avgScore(user.getAvgScore())
+                .maxAvgScore(user.getMaxAvgScore())
                 .totalCount(totalCount)
                 .graph(graph)
                 .build();
